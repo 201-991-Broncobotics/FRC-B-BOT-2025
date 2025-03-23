@@ -34,6 +34,7 @@ public class Settings {
 
         // Temporary single motor diffy control
         public static PIDController LeftDiffyPID = new PIDController(0, 0, 0); // 0, 0, 0
+        public static PIDController RightDiffyPID = new PIDController(0, 0, 0); // 0, 0, 0
         public static double startRotatePosition = 0;
         public static double secondRotatePosition = 90;
 
@@ -72,22 +73,26 @@ public class Settings {
 
     public static class AlgaeArmSettings {
 
-        public static double AlgaeArmPivotStartAngle = Math.toRadians(90); // 128.5 // 135.5
+        public static double AlgaePivotStartAngle = Math.toRadians(90); 
 
-        public static PIDController AlgaePivotPID = new PIDController(0, 0, 0); // 1, 0, 0
+        // Presets
+        public static double PresetPickupAngle = 45;
+        public static double PresetStoredAngle = 90;
+        public static double PresetOuttakeAngle = 90;
+
+        // Limits
+        public static double MaxPivotAngle = Math.toRadians(135);
+        public static double MinPivotAngle = Math.toRadians(0);
+
+        public static PIDController AlgaePivotPID = new PIDController(0, 0, 0); // 0, 0, 0
         
+        public static double IntakePower = 0.3;
+        public static double HoldPower = 0.2;
+        public static double OuttakePower = 0.5;
 
-    }
-
-    public static class AlgaeRollerSettings {
-        public static double IntakePower = 0.9;
-        public static double HoldPower = 0.35;
-        public static double OuttakePower = -0.1;
-        public static double ShootPower = -1.0;
-        public static double OuttakeAutoPower = -0.25;
+        public static int algaeRollerHasIntakedCurrent = 4;
+        public static int algaeRollerStallCurrent = 5;
         
-        //public static int maxSmartCurrent = 15;
-        //public static int secondaryCurrentLimit = 20;
     }
 
     public static class AutoTargetingSettings {
