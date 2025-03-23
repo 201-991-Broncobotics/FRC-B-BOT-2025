@@ -25,8 +25,7 @@ public class CoralArmSystem extends SubsystemBase {
     private ElevatorFeedforward elevatorFeedForward;
     private ArmFeedforward armFeedforward;
 
-    private TalonFX leftElevator;
-    private TalonFX rightElevator;
+    private TalonFX elevator;
     private TalonFX coralPivot;
 
     private boolean enabled = true, stowCoralArm = true;
@@ -36,9 +35,7 @@ public class CoralArmSystem extends SubsystemBase {
 
 
     public CoralArmSystem(String s) {
-        leftElevator = new TalonFX(MotorConstants.coralLeftElevatorID);
-        rightElevator = new TalonFX(MotorConstants.coralRightElevatorID);
-        coralPivot = new TalonFX(MotorConstants.coralPivotID);
+        elevator = new TalonFX(MotorConstants.elevatorID);
         TargetElevatorHeight = 0.0;
         elevatorFeedForward = new ElevatorFeedforward(CoralSystemSettings.kSE, CoralSystemSettings.kGE, CoralSystemSettings.kVE);
         armFeedforward = new ArmFeedforward(CoralSystemSettings.kSA, CoralSystemSettings.kGA, CoralSystemSettings.kVA);
@@ -54,9 +51,9 @@ public class CoralArmSystem extends SubsystemBase {
         SmartDashboard.putNumber("TargetAngle", 0);
     }
     public CoralArmSystem(DoubleSupplier eleControl) {
-        leftElevator = new TalonFX(MotorConstants.coralLeftElevatorID);
-        rightElevator = new TalonFX(MotorConstants.coralRightElevatorID);
-        coralPivot = new TalonFX(MotorConstants.coralPivotID);
+        //leftElevator = new TalonFX(MotorConstants.coralLeftElevatorID);
+        //rightElevator = new TalonFX(MotorConstants.coralRightElevatorID);
+        //coralPivot = new TalonFX(MotorConstants.coralPivotID);
         coralPivot.setNeutralMode(NeutralModeValue.Brake);
         testEle=eleControl;
 
@@ -74,14 +71,14 @@ public class CoralArmSystem extends SubsystemBase {
     public void update() {
         
         if(testEle!=null){
-            leftElevator.set(-testEle.getAsDouble());
-            rightElevator.set(testEle.getAsDouble());
+            //leftElevator.set(-testEle.getAsDouble());
+            //rightElevator.set(testEle.getAsDouble());
         }
       
         //Update elevator position
-        if (leftElevator.getPosition().getValueAsDouble()<0) 
-            CurrentElevatorHeight = 0;
-        else CurrentElevatorHeight = leftElevator.getPosition().getValueAsDouble(); //add offset later
+        //if (leftElevator.getPosition().getValueAsDouble()<0) 
+        //    CurrentElevatorHeight = 0;
+        //else CurrentElevatorHeight = leftElevator.getPosition().getValueAsDouble(); //add offset later
         //update arm position 
         if (CurrentArmAngle<0) 
             ArmOffset= ArmOffset - CurrentArmAngle;
@@ -94,11 +91,11 @@ public class CoralArmSystem extends SubsystemBase {
         
         //Move motors
         if(Math.abs(ElevatorError)<CoralSystemSettings.elevatorTolerance) {
-            leftElevator.setVoltage(elevatorFeedForward.calculate(0));
-            rightElevator.setVoltage(-elevatorFeedForward.calculate(0));
+            //leftElevator.setVoltage(elevatorFeedForward.calculate(0));
+            //rightElevator.setVoltage(-elevatorFeedForward.calculate(0));
         } else{
-            leftElevator.setVoltage(elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
-            rightElevator.setVoltage(-elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
+            //leftElevator.setVoltage(elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
+            //rightElevator.setVoltage(-elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
         }
         
         /*if(Math.abs(ArmError)<10) {
