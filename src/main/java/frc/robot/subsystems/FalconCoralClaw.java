@@ -64,8 +64,8 @@ public class FalconCoralClaw extends SubsystemBase {
         rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // Encoder object created to display position values - I think it uses internal encoder or smth?
-        rencoder = () -> gearRatio * 0 * 2*Math.PI; // converts to radians // rmotor.getEncoder().getPosition()
-        lencoder = () -> gearRatio * lmotor.getPosition().getValueAsDouble() * 2*Math.PI;
+        rencoder = () -> gearRatio * rmotor.getPosition().getValueAsDouble() * 2*Math.PI; // converts to radians // rmotor.getEncoder().getPosition()
+        lencoder = () -> -1 * gearRatio * lmotor.getPosition().getValueAsDouble() * 2*Math.PI;
 
         if (Settings.tuningTelemetryEnabled) {
             //SmartDashboard.putNumber("Tune Coral Claw kP", CoralClawSettings.kP);
@@ -149,10 +149,10 @@ public class FalconCoralClaw extends SubsystemBase {
         //lmotor.configureAsync(leftMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         //rollerMotor.configureAsync(coralMotorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-        SmartDashboard.putNumber("CoralClaw Target Pitch", Pitch);
-        SmartDashboard.putNumber("CoralClaw Target Roll", Roll);
-        SmartDashboard.putNumber("CoralClaw Current Pitch", getCurrentPitch());
-        SmartDashboard.putNumber("CoralClaw Current Roll", getCurrentRoll());
+        SmartDashboard.putNumber("CoralClaw Target Pitch", Math.toDegrees(Pitch));
+        SmartDashboard.putNumber("CoralClaw Target Roll", Math.toDegrees(Roll));
+        SmartDashboard.putNumber("CoralClaw Current Pitch", Math.toDegrees(getCurrentPitch()));
+        SmartDashboard.putNumber("CoralClaw Current Roll", Math.toDegrees(getCurrentRoll()));
         SmartDashboard.putNumber("CoralClaw Right Motor Power", rmotor.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("CoralClaw Left Motor Power", lmotor.getMotorVoltage().getValueAsDouble());
 
