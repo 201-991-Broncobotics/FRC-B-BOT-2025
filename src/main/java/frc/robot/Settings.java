@@ -20,9 +20,10 @@ public class Settings {
         public static double kGA = 0.05; // 0.05
         public static double kVA = 0.05; // 0.05
 
-        public static double elevatorTolerance =4;
+        public static double elevatorTolerance =.8;
         public static double armTolerance =5;
         public static double elevatorSpeedControl =1;
+         public static double elevatorRotationsToInches =(1.0/20.0)/*gear ratio*/ *(1.757*Math.PI/*circumfrance of the sprocket*/)*2;
 
         public static double coralClawStowedAngle = 90;
     }
@@ -75,7 +76,7 @@ public class Settings {
 
         public static PIDController AlgaePivotPID = new PIDController(0, 0, 0); // 1, 0, 0
         
-        
+
     }
 
     public static class AlgaeRollerSettings {

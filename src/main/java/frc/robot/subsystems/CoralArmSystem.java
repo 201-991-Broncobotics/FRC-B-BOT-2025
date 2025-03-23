@@ -16,19 +16,14 @@ import frc.robot.Constants.MotorConstants;
 public class CoralArmSystem extends SubsystemBase {
     private int ElevatorStage;
 
-    private double TargetElevatorHeight, TargetArmAngle, ElevatorError;
-    private double CurrentElevatorHeight, CurrentArmAngle, ArmError;
-    private double ArmOffset = 0;
+    private double TargetElevatorHeight, ElevatorError;
+    private double CurrentElevatorHeight;
 
     private String testString;
 
     private ElevatorFeedforward elevatorFeedForward;
-    private ArmFeedforward armFeedforward;
 
     private TalonFX elevator;
-    private TalonFX coralPivot;
-
-    private boolean enabled = true, stowCoralArm = true;
 
     //temp
     private DoubleSupplier testEle;
@@ -36,79 +31,53 @@ public class CoralArmSystem extends SubsystemBase {
 
     public CoralArmSystem(String s) {
         elevator = new TalonFX(MotorConstants.elevatorID);
+        elevator.setNeutralMode(NeutralModeValue.Brake);
         TargetElevatorHeight = 0.0;
         elevatorFeedForward = new ElevatorFeedforward(CoralSystemSettings.kSE, CoralSystemSettings.kGE, CoralSystemSettings.kVE);
-        armFeedforward = new ArmFeedforward(CoralSystemSettings.kSA, CoralSystemSettings.kGA, CoralSystemSettings.kVA);
-    
-        coralPivot.setNeutralMode(NeutralModeValue.Brake);
 
         testString = s;
 
         //put numbers so we can grab latter brr
-        SmartDashboard.putNumber("Arm kSE", CoralSystemSettings.kSA);
-        SmartDashboard.putNumber("Arm kGE", CoralSystemSettings.kGA);
-        SmartDashboard.putNumber("Arm kVE", CoralSystemSettings.kVA);
+        SmartDashboard.putNumber("Ele kSE", CoralSystemSettings.kSA);
+        SmartDashboard.putNumber("Ele kGE", CoralSystemSettings.kGA);
+        SmartDashboard.putNumber("Ele kVE", CoralSystemSettings.kVA);
         SmartDashboard.putNumber("TargetAngle", 0);
     }
     public CoralArmSystem(DoubleSupplier eleControl) {
         //leftElevator = new TalonFX(MotorConstants.coralLeftElevatorID);
         //rightElevator = new TalonFX(MotorConstants.coralRightElevatorID);
         //coralPivot = new TalonFX(MotorConstants.coralPivotID);
-        coralPivot.setNeutralMode(NeutralModeValue.Brake);
         testEle=eleControl;
 
         elevatorFeedForward = new ElevatorFeedforward(CoralSystemSettings.kSE, CoralSystemSettings.kGE, CoralSystemSettings.kVE);
-        armFeedforward = new ArmFeedforward(CoralSystemSettings.kSA, CoralSystemSettings.kGA, CoralSystemSettings.kVA);
     }
     public void setElevatorPos(double pos){
         TargetElevatorHeight = pos;
-    }
-    public void setArmAngle(double angle){
-        TargetArmAngle = angle;
     }
 
     
     public void update() {
         
         if(testEle!=null){
-            //leftElevator.set(-testEle.getAsDouble());
-            //rightElevator.set(testEle.getAsDouble());
+            elevator.set(-testEle.getAsDouble());
         }
       
         //Update elevator position
-        //if (leftElevator.getPosition().getValueAsDouble()<0) 
-        //    CurrentElevatorHeight = 0;
-        //else CurrentElevatorHeight = leftElevator.getPosition().getValueAsDouble(); //add offset later
-        //update arm position 
-        if (CurrentArmAngle<0) 
-            ArmOffset= ArmOffset - CurrentArmAngle;
+        if (-elevator.getPosition().getValueAsDouble()<0) 
+            CurrentElevatorHeight = 0;
+        else CurrentElevatorHeight = -elevator.getPosition().getValueAsDouble()*CoralSystemSettings.elevatorRotationsToInches; //add offset later
 
-        CurrentArmAngle = -coralPivot.getPosition().getValueAsDouble()*(1.0/25)*(360) + ArmOffset;//make a constant latter
 
         //Calculate error
         ElevatorError=TargetElevatorHeight-CurrentElevatorHeight;
-        ArmError = TargetArmAngle-CurrentArmAngle;
         
         //Move motors
         if(Math.abs(ElevatorError)<CoralSystemSettings.elevatorTolerance) {
-            //leftElevator.setVoltage(elevatorFeedForward.calculate(0));
-            //rightElevator.setVoltage(-elevatorFeedForward.calculate(0));
+            elevator.setVoltage(-elevatorFeedForward.calculate(0));
         } else{
-            //leftElevator.setVoltage(elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
-            //rightElevator.setVoltage(-elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
+            elevator.setVoltage(-elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
         }
         
-        /*if(Math.abs(ArmError)<10) {
-            coralPivot.setVoltage(-armFeedforward.calculate(TargetArmAngle, 0));
-        }
-        else*/
-        if (stowCoralArm && enabled) {
-            coralPivot.set(-armFeedforward.calculate(Math.toRadians(CoralSystemSettings.coralClawStowedAngle), ArmError/9));
-        } else if (enabled) {
-            coralPivot.set(-armFeedforward.calculate(Math.toRadians(TargetArmAngle), ArmError/9));
-        } else {
-            coralPivot.set(0);
-        }
         
 
     }
@@ -116,34 +85,30 @@ public class CoralArmSystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-       // TargetArmAngle= SmartDashboard.getNumber("TargetAngle", CurrentArmAngle);
 
-       /* temporary commented out because it a little bit nonexistant and it lessens clutter on dashboard
+
         
         //Smart Dashboard updates
-        SmartDashboard.putNumber("Elevator", CurrentElevatorHeight);
-        SmartDashboard.putNumber("Arm Angle", CurrentArmAngle);
-        SmartDashboard.putNumber("ACtual Arm Angle", coralPivot.getPosition().getValueAsDouble()*(1.0/25)*(360));
-        SmartDashboard.putNumber("Target", TargetArmAngle);
+        SmartDashboard.putNumber("ElevatorHeight", CurrentElevatorHeight);
         SmartDashboard.putNumber("TargetEle", TargetElevatorHeight);
         SmartDashboard.putNumber("PowertoElevator",  elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
-        SmartDashboard.putString( "actual values arm", ""+elevatorFeedForward.getKs()+" "+elevatorFeedForward.getKg()+" "+elevatorFeedForward.getKv());
+        SmartDashboard.putString( "actual values ele", ""+elevatorFeedForward.getKs()+" "+elevatorFeedForward.getKg()+" "+elevatorFeedForward.getKv());
        // SmartDashboard.putString("test", testString);//hahahaahahaha I AM DEFINITLY OKAY RIGHT NOW
-        SmartDashboard.putNumber("Left ElevatorAct ", leftElevator.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Left ElevatorAct ", elevator.getPosition().getValueAsDouble());
 
         //update ff
-        boolean check1 = armFeedforward.getKs()!=SmartDashboard.getNumber("Arm kSE", CoralSystemSettings.kSE);
-        boolean check2 = armFeedforward.getKg()!=SmartDashboard.getNumber("Arm kGE", CoralSystemSettings.kGE);
-        boolean check3 = armFeedforward.getKv()!=SmartDashboard.getNumber("Arm kVE", CoralSystemSettings.kVE);
+        boolean check1 = elevatorFeedForward.getKs()!=SmartDashboard.getNumber("Ele kSE", CoralSystemSettings.kSE);
+        boolean check2 = elevatorFeedForward.getKg()!=SmartDashboard.getNumber("Ele kGE", CoralSystemSettings.kGE);
+        boolean check3 = elevatorFeedForward.getKv()!=SmartDashboard.getNumber("Ele kVE", CoralSystemSettings.kVE);
         if(check1 || check2 || check3){
             SmartDashboard.putString( "stuff", "e");
-            armFeedforward = new ArmFeedforward(
-            SmartDashboard.getNumber("Arm kSE", CoralSystemSettings.kSE), 
-            SmartDashboard.getNumber("Arm kGE", CoralSystemSettings.kGE), 
-            SmartDashboard.getNumber("Arm kVE", CoralSystemSettings.kVE));
+            elevatorFeedForward = new ElevatorFeedforward(
+            SmartDashboard.getNumber("Ele kSE", CoralSystemSettings.kSE), 
+            SmartDashboard.getNumber("Ele kGE", CoralSystemSettings.kGE), 
+            SmartDashboard.getNumber("Ele kVE", CoralSystemSettings.kVE));
         }
         
-        */
+        
         
     }
     public boolean atPosition(){
@@ -161,18 +126,6 @@ public class CoralArmSystem extends SubsystemBase {
     @Override
     public void simulationPeriodic() {
         // This method will be called once per scheduler run during simulation
-    }
-
-    public void toggleCoralArm() {
-        enabled = !enabled;
-    }
-
-    public void toggleStoreArm() {
-        stowCoralArm = !stowCoralArm;
-    }
-
-    public void unstowArm() {
-        stowCoralArm = false;
     }
 
 
