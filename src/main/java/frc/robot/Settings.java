@@ -12,13 +12,13 @@ import frc.robot.utility.CoralSystemPreset;
  */
 public class Settings {
 
-    public static boolean useNormalControls = true;
+    public static boolean useNormalControls = false;
     public static boolean tuningTelemetryEnabled = true;
 
     public static class CoralSystemSettings {
-        public static double kSE = 0.0001;
-        public static double kGE = 0.00;
-        public static double kVE = 0.1;
+        public static double kSE = 0.001;
+        public static double kGE = 0.300;
+        public static double kVE = 0.9;
 
         public static double kSA = 0.001;
         public static double kGA = 0.05; 
@@ -30,7 +30,7 @@ public class Settings {
         public static double elevatorRotationsToInches =(1.0/20.0)/*gear ratio*/ *(1.757*Math.PI/*circumference of the sprocket's pitch*/)*2;
 
         public static double startingPosition = 0;
-        public static double maxHeight = 40;
+        public static double maxHeight = 50;
         public static double minHeight = 0;
 
         public static double manualControlSpeed = 15; // max speed in inches per second 
@@ -41,8 +41,8 @@ public class Settings {
         public static double startRoll = Math.toRadians(0);
         public static double startPitch = Math.toRadians(0);
 
-        public static PIDController LeftDiffyPID = new PIDController(0, 0, 0); // 0, 0, 0
-        public static PIDController RightDiffyPID = new PIDController(0, 0, 0); // 0, 0, 0
+        public static PIDController LeftDiffyPID = new PIDController(0.08, 0, 0); // 0, 0, 0
+        public static PIDController RightDiffyPID = new PIDController(0.08, 0, 0); // 0, 0, 0
 
         // gravity power
         public static double gravityPower = 0.0;

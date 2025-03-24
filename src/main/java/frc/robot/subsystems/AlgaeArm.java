@@ -48,7 +48,7 @@ public class AlgaeArm extends SubsystemBase {
     private boolean enabled = true;
     
     private double setPresetPosition = AlgaeArmSettings.PresetPickupAngle;
-    private double presetTolerance = Math.toRadians(5); // radians
+    private double presetTolerance = Math.toRadians(10); // radians
 
 
     public AlgaeArm() {

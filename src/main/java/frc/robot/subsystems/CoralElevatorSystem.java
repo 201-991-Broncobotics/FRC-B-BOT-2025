@@ -82,8 +82,8 @@ public class CoralElevatorSystem extends SubsystemBase {
         if (overrideManualControl) {
             switch (ElevatorStage) {
                 case 0: goToPreset(CoralSystemPresets.GroundIntake); break;
-                case 1: goToPreset(CoralSystemPresets.CoralStationIntake); break;
-                case 2: goToPreset(CoralSystemPresets.L1Reef); break;
+                case 1: goToPreset(CoralSystemPresets.L1Reef); break;
+                case 2: goToPreset(CoralSystemPresets.CoralStationIntake); break;
                 case 3: goToPreset(CoralSystemPresets.L2Reef); break;
                 case 4: goToPreset(CoralSystemPresets.L3Reef); break;
                 case 5: goToPreset(CoralSystemPresets.L4Reef); break;
@@ -126,7 +126,7 @@ public class CoralElevatorSystem extends SubsystemBase {
         SmartDashboard.putNumber("Left ElevatorAct ", elevator.getPosition().getValueAsDouble());
 
         //update ff
-        boolean check1 = elevatorFeedForward.getKs()!=SmartDashboard.getNumber("Ele kSE", CoralSystemSettings.kSE);
+        /*boolean check1 = elevatorFeedForward.getKs()!=SmartDashboard.getNumber("Ele kSE", CoralSystemSettings.kSE);
         boolean check2 = elevatorFeedForward.getKg()!=SmartDashboard.getNumber("Ele kGE", CoralSystemSettings.kGE);
         boolean check3 = elevatorFeedForward.getKv()!=SmartDashboard.getNumber("Ele kVE", CoralSystemSettings.kVE);
         if(check1 || check2 || check3){
@@ -135,7 +135,7 @@ public class CoralElevatorSystem extends SubsystemBase {
             SmartDashboard.getNumber("Ele kSE", CoralSystemSettings.kSE), 
             SmartDashboard.getNumber("Ele kGE", CoralSystemSettings.kGE), 
             SmartDashboard.getNumber("Ele kVE", CoralSystemSettings.kVE));
-        }
+        }*/
         
         
         

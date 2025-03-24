@@ -89,12 +89,21 @@ public class DiffyCoralClaw extends SubsystemBase {
         rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // setup absolute encoders
-        lThroughBore = new ThroughBoreEncoder(0, 1, 2); // Digital ports on the RobotRio
-        rThroughBore = new ThroughBoreEncoder(3, 4, 5);
+        lThroughBore = new ThroughBoreEncoder(0, 1, 2, true, true); // Digital ports on the RobotRio
+        rThroughBore = new ThroughBoreEncoder(3, 4, 5, true, true);
 
+        lThroughBore.resetRelative();
+        lThroughBore.setAbsoluteZero(Math.toRadians(240.528966));
+        rThroughBore.resetRelative();
+        rThroughBore.setAbsoluteZero(Math.toRadians(237.302106));
+
+        lThroughBore.setRelativeZero(lThroughBore.getAbsoluteAngle());
+        rThroughBore.setRelativeZero(rThroughBore.getAbsoluteAngle());
+
+        // flip negatives for absolute
         // Encoder object created to display position values
-        rencoder = () -> -1 * gearRatio * rmotor.getPosition().getValueAsDouble() * 2*Math.PI; // in radians
-        lencoder = () -> gearRatio * lmotor.getPosition().getValueAsDouble() * 2*Math.PI;
+        rencoder = () -> rThroughBore.getRelativeAngle(); // in radians // -1 * gearRatio * rmotor.getPosition().getValueAsDouble() * 2*Math.PI
+        lencoder = () -> -lThroughBore.getRelativeAngle(); // gearRatio * lmotor.getPosition().getValueAsDouble() * 2*Math.PI
 
         if (Settings.tuningTelemetryEnabled) {
 
@@ -116,7 +125,7 @@ public class DiffyCoralClaw extends SubsystemBase {
 
 
     public void update() {
-        setDiffyClaw(CoralClawSettings.testingPitch, CoralClawSettings.testingRoll);
+        // setDiffyClaw(CoralClawSettings.testingPitch, CoralClawSettings.testingRoll);
 
         if (ManualControlAxis1 != null && ManualControlAxis2 != null) {
             if (!GoToPosition) {
@@ -144,12 +153,15 @@ public class DiffyCoralClaw extends SubsystemBase {
         TargetRoll = Functions.minMaxValue(-0.5*rollRange, 0.5*rollRange, TargetRoll);
 
         // find motor target positions
-        LeftDiffyTarget = TargetPitch-(TargetRoll*0.5);
-        RightDiffyTarget = TargetPitch+(TargetRoll*0.5);
+        LeftDiffyTarget = TargetPitch-(TargetRoll); 
+        RightDiffyTarget = TargetPitch+(TargetRoll); 
+
+        //RightDiffyTarget = Functions.minMaxValue(-110, 180, RightDiffyTarget);
+        //LeftDiffyTarget = Functions.minMaxValue(-125, 110, LeftDiffyTarget);
 
         if (enabled) {
-            lmotor.set(CoralClawSettings.LeftDiffyPID.calculate(lencoder.getAsDouble(), LeftDiffyTarget) + CoralClawSettings.gravityPower * Math.sin(getCurrentPitch()));
-            rmotor.set(-1 * (CoralClawSettings.RightDiffyPID.calculate(rencoder.getAsDouble(), RightDiffyTarget) + CoralClawSettings.gravityPower * Math.sin(getCurrentPitch())));
+            rmotor.set(-1 * (CoralClawSettings.LeftDiffyPID.calculate(lencoder.getAsDouble(), LeftDiffyTarget) + CoralClawSettings.gravityPower * Math.sin(getCurrentPitch())));
+            lmotor.set((CoralClawSettings.RightDiffyPID.calculate(rencoder.getAsDouble(), RightDiffyTarget) + CoralClawSettings.gravityPower * Math.sin(getCurrentPitch())));
         } else {
             lmotor.set(0);
             rmotor.set(0);
@@ -188,20 +200,28 @@ public class DiffyCoralClaw extends SubsystemBase {
         SmartDashboard.putNumber("CoralClaw Right Motor Power", rmotor.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("CoralClaw Left Motor Power", lmotor.getMotorVoltage().getValueAsDouble());
 
+        SmartDashboard.putNumber("CoralClaw Right Motor Target", Math.toDegrees(RightDiffyTarget));
+        SmartDashboard.putNumber("CoralClaw Left Motor Target", Math.toDegrees(LeftDiffyTarget));
         SmartDashboard.putNumber("CoralClaw Right Motor Position", rmotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("CoralClaw Left Motor Position", lmotor.getPosition().getValueAsDouble());
 
         SmartDashboard.putNumber("CoralClaw Roller Power", RollerPower);
         SmartDashboard.putNumber("Coral Roller Current", rollerMotor.getOutputCurrent());
 
+        SmartDashboard.putNumber("CoralClaw Right Encoder Position", Math.toDegrees(rencoder.getAsDouble()));
+        SmartDashboard.putNumber("CoralClaw Left Encoder Position", Math.toDegrees(lencoder.getAsDouble()));
 
-        SmartDashboard.putNumber("Right ThroughBore Relative Raw", rThroughBore.getRelativeRaw());
-        SmartDashboard.putNumber("Right ThroughBore Absolute Raw", rThroughBore.getAbsoluteRaw());
-        SmartDashboard.putNumber("Right ThroughBore Relative Angle", rThroughBore.getRelativeAngle());
-        SmartDashboard.putNumber("Right ThroughBore Absolute Angle", rThroughBore.getAbsoluteAngle());
+        /* 
+        if (rThroughBore.encoderExists()) {
+            
+            SmartDashboard.putNumber("Right ThroughBore Relative Angle", Math.toDegrees(rThroughBore.getRelativeAngle()));
+            SmartDashboard.putNumber("Right ThroughBore Absolute Angle", Math.toDegrees(rThroughBore.getAbsoluteAngle()));
 
-        SmartDashboard.putNumber("Left ThroughBore Relative Angle", lThroughBore.getRelativeAngle());
-        SmartDashboard.putNumber("Left ThroughBore Absolute Angle", lThroughBore.getAbsoluteAngle());
+            SmartDashboard.putNumber("Left ThroughBore Relative Angle", Math.toDegrees(lThroughBore.getRelativeAngle()));
+            SmartDashboard.putNumber("Left ThroughBore Absolute Angle", Math.toDegrees(lThroughBore.getAbsoluteAngle()));
+        }
+        */
+        
 
     }
 
@@ -215,7 +235,7 @@ public class DiffyCoralClaw extends SubsystemBase {
      * Gets current roll in radians
      */
     public double getCurrentRoll() {
-        return rencoder.getAsDouble() - lencoder.getAsDouble();
+        return (rencoder.getAsDouble() - lencoder.getAsDouble()) * 0.5;
     }
 
     public void stopRoller() { RollerPower = 0; }
@@ -262,8 +282,8 @@ public class DiffyCoralClaw extends SubsystemBase {
     public void goToElevatorPreset() {
         switch (CoralElevatorSystem.ElevatorStage) {
             case 0: goToPreset(CoralSystemPresets.GroundIntake); break;
-            case 1: goToPreset(CoralSystemPresets.CoralStationIntake); break;
-            case 2: goToPreset(CoralSystemPresets.L1Reef); break;
+            case 1: goToPreset(CoralSystemPresets.L1Reef); break;
+            case 2: goToPreset(CoralSystemPresets.CoralStationIntake); break;
             case 3: goToPreset(CoralSystemPresets.L2Reef); break;
             case 4: goToPreset(CoralSystemPresets.L3Reef); break;
             case 5: goToPreset(CoralSystemPresets.L4Reef); break;

@@ -265,23 +265,23 @@ public class RobotContainer {
             coralElevatorSystem.setManualControl(() -> Functions.deadbandValue(((-driverFlightHotasOne.getRawAxis(2)+1)/2),  0.05), true); // deadband creates a small zone that always goes to lowest position
 
             // down, up on roller switch, cycles through elevator presets
-            new JoystickButton(driverFlightHotasOne, 33).toggleOnTrue(new InstantCommand(coralElevatorSystem::downOneStage));
-            new JoystickButton(driverFlightHotasOne, 34).toggleOnTrue(new InstantCommand(coralElevatorSystem::upOneStage));
+            new JoystickButton(driverFlightHotasOne, 17).toggleOnTrue(new InstantCommand(coralElevatorSystem::downOneStage));
+            new JoystickButton(driverFlightHotasOne, 18).toggleOnTrue(new InstantCommand(coralElevatorSystem::upOneStage));
 
             new JoystickButton(driverFlightHotasOne, 7).toggleOnTrue(new InstantCommand(coralClaw::toggleEnabled));
 
             // rollers
-            new JoystickButton(driverFlightHotasOne, 22).onTrue(new InstantCommand(coralClaw::intakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::holdRoller)); // push down
-            new JoystickButton(driverFlightHotasOne, 20).onTrue(new InstantCommand(coralClaw::outtakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::stopRoller)); // pull up
-            new JoystickButton(driverFlightHotasOne, 21).onTrue(new InstantCommand(algaeArm::intakeRoller)).toggleOnFalse(new InstantCommand(algaeArm::holdRoller)); // push right
-            new JoystickButton(driverFlightHotasOne, 23).onTrue(new InstantCommand(algaeArm::outtakeRoller)).toggleOnFalse(new InstantCommand(algaeArm::stopRoller)); // push left
+            new JoystickButton(driverFlightHotasOne, 26).onTrue(new InstantCommand(coralClaw::intakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::holdRoller)); // push down
+            new JoystickButton(driverFlightHotasOne, 24).onTrue(new InstantCommand(coralClaw::outtakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::stopRoller)); // pull up
+            new JoystickButton(driverFlightHotasOne, 25).onTrue(new InstantCommand(algaeArm::intakeRoller)).toggleOnFalse(new InstantCommand(algaeArm::holdRoller)); // push right
+            new JoystickButton(driverFlightHotasOne, 27).onTrue(new InstantCommand(algaeArm::outtakeRoller)).toggleOnFalse(new InstantCommand(algaeArm::stopRoller)); // push left
 
             // Tells Coral Claw to go to the preset position that the elevator is in
-            new JoystickButton(driverFlightHotasOne, 30).toggleOnTrue(new InstantCommand(coralClaw::goToElevatorPreset));
+            new JoystickButton(driverFlightHotasOne, 31).toggleOnTrue(new InstantCommand(coralClaw::goToElevatorPreset));
             
             // Algae
-            algaeArm.setManualControl(() -> driverFlightHotasOne.getRawAxis(4), true);
-            coralClaw.setManualControl(() -> driverFlightHotasOne.getRawAxis(3), () -> driverFlightHotasOne.getRawAxis(6), true);
+            algaeArm.setManualControl(() -> ((-driverFlightHotasOne.getRawAxis(4)+1)/2), true);
+            coralClaw.setManualControl(() -> ((-driverFlightHotasOne.getRawAxis(3)+1)/2), () -> ((-driverFlightHotasOne.getRawAxis(6)+1)/2), true);
             new JoystickButton(driverFlightHotasOne, 8).onTrue(new InstantCommand(algaeArm::presetOuttakePosition));
 
 
