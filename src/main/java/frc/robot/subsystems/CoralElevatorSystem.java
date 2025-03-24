@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Settings.CoralSystemPresets;
 import frc.robot.Settings.CoralSystemSettings;
 import frc.robot.utility.CoralSystemPreset;
 import frc.robot.utility.ElapsedTime;
@@ -18,7 +19,7 @@ import frc.robot.utility.ElapsedTime.Resolution;
 import frc.robot.Constants.MotorConstants;
 
 public class CoralElevatorSystem extends SubsystemBase {
-    private int ElevatorStage;
+    public static int ElevatorStage;
 
     private double TargetElevatorHeight, ElevatorError;
     private double CurrentElevatorHeight;
@@ -31,6 +32,13 @@ public class CoralElevatorSystem extends SubsystemBase {
     private double frameTime = 0;
 
     private DoubleSupplier ManualControlAxis = () -> 0;
+    private boolean GoToPosition = false; // whether or not the manual control controls the power up and down or sets the position
+
+    private int numberOfStages = 5;
+
+    private boolean overrideManualControl = false;
+    private double lastManualControl = 0;
+    private double overrideOverrideTolerance = 0.05; // units are joystick input
 
 
     //temp
@@ -63,7 +71,25 @@ public class CoralElevatorSystem extends SubsystemBase {
     public void update() {
         //if(testEle!=null){ elevator.set(-testEle.getAsDouble()); }
 
-        TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;
+        if (!GoToPosition) {
+            if (Math.abs(ManualControlAxis.getAsDouble()) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
+            if (!overrideManualControl) TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;
+        } else {
+            if (Math.abs(ManualControlAxis.getAsDouble() - lastManualControl) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
+            if (!overrideManualControl) TargetElevatorHeight = ManualControlAxis.getAsDouble() * (CoralSystemSettings.maxHeight - CoralSystemSettings.minHeight) + CoralSystemSettings.minHeight;
+        }
+
+        if (overrideManualControl) {
+            switch (ElevatorStage) {
+                case 0: goToPreset(CoralSystemPresets.GroundIntake); break;
+                case 1: goToPreset(CoralSystemPresets.CoralStationIntake); break;
+                case 2: goToPreset(CoralSystemPresets.L1Reef); break;
+                case 3: goToPreset(CoralSystemPresets.L2Reef); break;
+                case 4: goToPreset(CoralSystemPresets.L3Reef); break;
+                case 5: goToPreset(CoralSystemPresets.L4Reef); break;
+            }
+        }
+        
       
         //Update elevator position
         if (-elevator.getPosition().getValueAsDouble()<0) 
@@ -123,16 +149,43 @@ public class CoralElevatorSystem extends SubsystemBase {
     }
     public void setStage(int newStage){
         ElevatorStage = newStage;
+
+        overrideManualControl = true;
+        if (GoToPosition) lastManualControl = ManualControlAxis.getAsDouble();
+    }
+
+    public void upOneStage() {
+        ElevatorStage += 1;
+        if (ElevatorStage > numberOfStages) ElevatorStage = numberOfStages;
+
+        overrideManualControl = true;
+        if (GoToPosition) lastManualControl = ManualControlAxis.getAsDouble();
+    }
+
+    public void downOneStage() {
+        ElevatorStage -= 1;
+        if (ElevatorStage < 0) ElevatorStage = 0;
+
+        overrideManualControl = true;
+        if (GoToPosition) lastManualControl = ManualControlAxis.getAsDouble();
     }
 
     
 
     public void goToPreset(CoralSystemPreset coralSystemPreset) {
         setElevatorPos(coralSystemPreset.eleHeight);
+
+        overrideManualControl = true;
+        if (GoToPosition) lastManualControl = ManualControlAxis.getAsDouble();
+    }
+
+    public void setManualControl(DoubleSupplier controlAxis, boolean goToPosition) {
+        ManualControlAxis = controlAxis;
+        GoToPosition = goToPosition;
     }
 
     public void setManualControl(DoubleSupplier controlAxis) {
-        ManualControlAxis = controlAxis;
+        setManualControl(controlAxis, false);
     }
 
 

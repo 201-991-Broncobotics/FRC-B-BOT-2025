@@ -32,6 +32,7 @@ public class AlgaeArm extends SubsystemBase {
     private DoubleSupplier algaePivotEncoder;
 
     private DoubleSupplier ManualControlAxis = () -> 0;
+    private boolean GoToPosition = false; // whether or not the manual control controls the power up and down or sets the position
 
     private double PivotMotorPower, AlgaeRollerPower;
 
@@ -44,7 +45,10 @@ public class AlgaeArm extends SubsystemBase {
     private ElapsedTime runTime;
     private double frameTime = 0;
 
-    private boolean enabled = false;
+    private boolean enabled = true;
+    
+    private double setPresetPosition = AlgaeArmSettings.PresetPickupAngle;
+    private double presetTolerance = Math.toRadians(5); // radians
 
 
     public AlgaeArm() {
@@ -79,7 +83,14 @@ public class AlgaeArm extends SubsystemBase {
 
     public void update() {
 
-        TargetPivotAngle += ManualControlAxis.getAsDouble() * AlgaeArmSettings.manualControlSpeed * frameTime;
+        if (!GoToPosition) {
+            TargetPivotAngle += ManualControlAxis.getAsDouble() * AlgaeArmSettings.manualControlSpeed * frameTime;
+        } else {
+            TargetPivotAngle = ManualControlAxis.getAsDouble() * (AlgaeArmSettings.MaxPivotAngle - AlgaeArmSettings.MinPivotAngle) + AlgaeArmSettings.MinPivotAngle;
+
+            if (Math.abs(setPresetPosition - TargetPivotAngle) < presetTolerance) TargetPivotAngle = setPresetPosition;
+        }
+        
 
         TargetPivotAngle = Functions.minMaxValue(AlgaeArmSettings.MinPivotAngle, AlgaeArmSettings.MaxPivotAngle, TargetPivotAngle);
 
@@ -128,16 +139,27 @@ public class AlgaeArm extends SubsystemBase {
     public void presetIntakePosition() {
         TargetPivotAngle = AlgaeArmSettings.PresetPickupAngle;
         AlgaeRollerPower = AlgaeArmSettings.IntakePower;
+
+        setPresetPosition = AlgaeArmSettings.PresetPickupAngle;
     }
 
     public void presetStorePosition() {
         TargetPivotAngle = AlgaeArmSettings.PresetStoredAngle;
         AlgaeRollerPower = AlgaeArmSettings.HoldPower;
+
+        setPresetPosition = AlgaeArmSettings.PresetStoredAngle;
     }
 
     public void presetOuttakePosition() {
         TargetPivotAngle = AlgaeArmSettings.PresetOuttakeAngle;
+
+        setPresetPosition = AlgaeArmSettings.PresetOuttakeAngle;
         // AlgaeRollerPower = AlgaeArmSettings.OuttakePower;
+    }
+
+    public void setManualControl(DoubleSupplier controlAxis, boolean goToPosition) {
+        ManualControlAxis = controlAxis;
+        GoToPosition = goToPosition;
     }
 
     public void setManualControl(DoubleSupplier controlAxis) {

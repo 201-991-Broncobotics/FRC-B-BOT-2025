@@ -12,6 +12,7 @@ import frc.robot.utility.CoralSystemPreset;
  */
 public class Settings {
 
+    public static boolean useNormalControls = true;
     public static boolean tuningTelemetryEnabled = true;
 
     public static class CoralSystemSettings {
@@ -60,6 +61,9 @@ public class Settings {
         public static double testingPitch = 0;
         public static double testingRoll = 0;
 
+        public static double manualPitchSpeed = 10;
+        public static double manualRollSpeed = 10;
+
     }
 
 
@@ -80,8 +84,8 @@ public class Settings {
         public static double PresetOuttakeAngle = Math.toRadians(90);
 
         // Limits
-        public static double MaxPivotAngle = Math.toRadians(135);
-        public static double MinPivotAngle = Math.toRadians(-15);
+        public static double MaxPivotAngle = Math.toRadians(120);
+        public static double MinPivotAngle = Math.toRadians(0);
 
         public static PIDController AlgaePivotPID = new PIDController(0.17, 0, 0); // 0, 0, 0
         

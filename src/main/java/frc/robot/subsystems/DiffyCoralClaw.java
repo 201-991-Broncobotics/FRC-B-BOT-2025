@@ -9,7 +9,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Settings;
 import frc.robot.Constants.MotorConstants;
 import frc.robot.Settings.CoralClawSettings;
+import frc.robot.Settings.CoralSystemPresets;
+import frc.robot.Settings.CoralSystemSettings;
 import frc.robot.utility.CoralSystemPreset;
+import frc.robot.utility.ElapsedTime;
+import frc.robot.utility.ElapsedTime.Resolution;
 import frc.robot.utility.Functions;
 import frc.robot.utility.ThroughBoreEncoder;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -48,10 +52,25 @@ public class DiffyCoralClaw extends SubsystemBase {
 
     private double LeftDiffyTarget = 0, RightDiffyTarget = 0;
 
+    private ElapsedTime runTime;
+    private double frameTime = 0;
+
+    private DoubleSupplier ManualControlAxis1, ManualControlAxis2;
+    private boolean GoToPosition = false; // whether or not the manual control controls the power up and down or sets the position
+
+    private boolean snapToPreset = true;
+    private double presetTolerance = Math.toRadians(45);
+
+    private boolean overrideManualControl = false;
+    private double lastManualControl1 = 0, lastManualControl2 = 0;
+    private double overrideOverrideTolerance = 0.1; // units are joystick input
+
     private boolean enabled = false;
 
     public DiffyCoralClaw() {
         RollerPower = 0;
+
+        runTime = new ElapsedTime(Resolution.SECONDS);
 
         TargetRoll = CoralClawSettings.startRoll;
         TargetPitch = CoralClawSettings.startPitch;
@@ -89,12 +108,36 @@ public class DiffyCoralClaw extends SubsystemBase {
             SmartDashboard.putNumber("Testing Diffy Pitch", CoralClawSettings.testingPitch);
             SmartDashboard.putNumber("Testing Diffy Roll", CoralClawSettings.testingRoll);
         }
+
+        frameTime = runTime.time();
+        runTime.reset();
     
     }
 
 
     public void update() {
         setDiffyClaw(CoralClawSettings.testingPitch, CoralClawSettings.testingRoll);
+
+        if (ManualControlAxis1 != null && ManualControlAxis2 != null) {
+            if (!GoToPosition) {
+                if ((Math.abs(ManualControlAxis1.getAsDouble()) > overrideOverrideTolerance || Math.abs(ManualControlAxis2.getAsDouble()) > overrideOverrideTolerance) && overrideManualControl) overrideManualControl = false;
+                if (!overrideManualControl) {
+                    TargetPitch += ManualControlAxis1.getAsDouble() * CoralClawSettings.manualPitchSpeed * frameTime;
+                    TargetRoll += ManualControlAxis2.getAsDouble() * CoralClawSettings.manualRollSpeed * frameTime;
+                } 
+            } else {
+                if ((Math.abs(ManualControlAxis1.getAsDouble() - lastManualControl1) > overrideOverrideTolerance || Math.abs(ManualControlAxis2.getAsDouble() - lastManualControl2) > overrideOverrideTolerance) && overrideManualControl) overrideManualControl = false;
+                if (!overrideManualControl) {
+                    TargetPitch = ManualControlAxis1.getAsDouble() * (maxPitch - minPitch) + minPitch;
+                    TargetRoll = ManualControlAxis2.getAsDouble() * (0.5*rollRange - -0.5*rollRange) + -0.5*rollRange;
+                    if (snapToPreset) {
+                        if (Math.abs(TargetRoll - Math.toRadians(0)) < presetTolerance) TargetRoll = Math.toRadians(0);
+                        else if (Math.abs(TargetRoll - Math.toRadians(90)) < presetTolerance) TargetRoll = Math.toRadians(90);
+                        else if (Math.abs(TargetRoll - Math.toRadians(-90)) < presetTolerance) TargetRoll = Math.toRadians(-90);
+                    }
+                }
+            }
+        }
 
         //Limits
         TargetPitch = Functions.minMaxValue(minPitch, maxPitch, TargetPitch);
@@ -120,6 +163,9 @@ public class DiffyCoralClaw extends SubsystemBase {
 
     @Override
     public void periodic() {
+        frameTime = runTime.time();
+        runTime.reset();
+
         // This method will be called once per scheduler run
         // read PID coefficients from SmartDashboard
         if (Settings.tuningTelemetryEnabled) {
@@ -180,6 +226,12 @@ public class DiffyCoralClaw extends SubsystemBase {
     public void setDiffyClaw(double pitch, double roll) {
         TargetPitch = pitch;
         TargetRoll = roll;
+
+        overrideManualControl = true;
+        if (GoToPosition) { 
+            lastManualControl1 = ManualControlAxis1.getAsDouble();
+            lastManualControl2 = ManualControlAxis2.getAsDouble();
+        }
     }
 
     public void Enable() { enabled = true; }
@@ -189,6 +241,40 @@ public class DiffyCoralClaw extends SubsystemBase {
 
     public void goToPreset(CoralSystemPreset coralSystemPreset) {
         setDiffyClaw(coralSystemPreset.clawPitch, coralSystemPreset.clawRoll);
+
+        overrideManualControl = true;
+        if (GoToPosition) { 
+            lastManualControl1 = ManualControlAxis1.getAsDouble();
+            lastManualControl2 = ManualControlAxis2.getAsDouble();
+        }
     }
+
+    public void setManualControl(DoubleSupplier controlAxis1, DoubleSupplier controlAxis2, boolean goToPosition) {
+        ManualControlAxis1 = controlAxis1;
+        ManualControlAxis2 = controlAxis2;
+        GoToPosition = goToPosition;
+    }
+
+    public void setManualControl(DoubleSupplier controlAxis1, DoubleSupplier controlAxis2) {
+        setManualControl(controlAxis1, controlAxis2, false);
+    }
+
+    public void goToElevatorPreset() {
+        switch (CoralElevatorSystem.ElevatorStage) {
+            case 0: goToPreset(CoralSystemPresets.GroundIntake); break;
+            case 1: goToPreset(CoralSystemPresets.CoralStationIntake); break;
+            case 2: goToPreset(CoralSystemPresets.L1Reef); break;
+            case 3: goToPreset(CoralSystemPresets.L2Reef); break;
+            case 4: goToPreset(CoralSystemPresets.L3Reef); break;
+            case 5: goToPreset(CoralSystemPresets.L4Reef); break;
+        }
+
+        overrideManualControl = true;
+        if (GoToPosition) { 
+            lastManualControl1 = ManualControlAxis1.getAsDouble();
+            lastManualControl2 = ManualControlAxis2.getAsDouble();
+        }
+    }
+
 
 }
