@@ -19,6 +19,8 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import frc.robot.Constants.MotorConstants;
 import frc.robot.Settings.AlgaeArmSettings;
 import frc.robot.Settings.CoralClawSettings;
+import frc.robot.utility.ElapsedTime;
+import frc.robot.utility.ElapsedTime.Resolution;
 import frc.robot.utility.Functions;
 
 public class AlgaeArm extends SubsystemBase {
@@ -29,6 +31,8 @@ public class AlgaeArm extends SubsystemBase {
 
     private DoubleSupplier algaePivotEncoder;
 
+    private DoubleSupplier ManualControlAxis = () -> 0;
+
     private double PivotMotorPower, AlgaeRollerPower;
 
     private double TargetPivotAngle;
@@ -37,10 +41,14 @@ public class AlgaeArm extends SubsystemBase {
 
     private double pivotZeroAngle = 0;
 
+    private ElapsedTime runTime;
+    private double frameTime = 0;
+
     private boolean enabled = false;
 
 
     public AlgaeArm() {
+        runTime = new ElapsedTime(Resolution.SECONDS);
         
         algaeRollerConfig = new SparkFlexConfig();
 
@@ -71,6 +79,8 @@ public class AlgaeArm extends SubsystemBase {
 
     public void update() {
 
+        TargetPivotAngle += ManualControlAxis.getAsDouble() * AlgaeArmSettings.manualControlSpeed * frameTime;
+
         TargetPivotAngle = Functions.minMaxValue(AlgaeArmSettings.MinPivotAngle, AlgaeArmSettings.MaxPivotAngle, TargetPivotAngle);
 
         PivotMotorPower = AlgaeArmSettings.AlgaePivotPID.calculate(algaePivotEncoder.getAsDouble(), TargetPivotAngle);
@@ -91,6 +101,9 @@ public class AlgaeArm extends SubsystemBase {
 
     @Override
     public void periodic() { 
+        frameTime = runTime.time();
+        runTime.reset();
+
         SmartDashboard.putNumber("Algae Current Pivot Angle", Math.toDegrees(algaePivotEncoder.getAsDouble()));
         SmartDashboard.putNumber("Algae Target Pivot Angle", Math.toDegrees(TargetPivotAngle));
         SmartDashboard.putNumber("Algae Pivot Motor Current", pivotMotor.getStatorCurrent().getValueAsDouble());
@@ -125,6 +138,10 @@ public class AlgaeArm extends SubsystemBase {
     public void presetOuttakePosition() {
         TargetPivotAngle = AlgaeArmSettings.PresetOuttakeAngle;
         // AlgaeRollerPower = AlgaeArmSettings.OuttakePower;
+    }
+
+    public void setManualControl(DoubleSupplier controlAxis) {
+        ManualControlAxis = controlAxis;
     }
 
     public void stopRoller() { AlgaeRollerPower = 0; }

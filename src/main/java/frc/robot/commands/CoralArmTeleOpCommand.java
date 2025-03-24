@@ -1,17 +1,17 @@
 package frc.robot.commands;
 
-import frc.robot.subsystems.CoralArmSystem;
+import frc.robot.subsystems.CoralElevatorSystem;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class CoralArmTeleOpCommand extends Command {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
-    private final CoralArmSystem coralArmSystem;
+    private final CoralElevatorSystem coralArmSystem;
     private final int direction;
 
 
-    public CoralArmTeleOpCommand(CoralArmSystem subsystem, int direction) {
+    public CoralArmTeleOpCommand(CoralElevatorSystem subsystem, int direction) {
         this.direction =direction;
         coralArmSystem=subsystem;
         addRequirements(subsystem);

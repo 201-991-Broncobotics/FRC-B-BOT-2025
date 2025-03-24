@@ -11,82 +11,85 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Settings.CoralSystemSettings;
+import frc.robot.utility.CoralSystemPreset;
+import frc.robot.utility.ElapsedTime;
+import frc.robot.utility.Functions;
+import frc.robot.utility.ElapsedTime.Resolution;
 import frc.robot.Constants.MotorConstants;
 
-public class CoralArmSystem extends SubsystemBase {
+public class CoralElevatorSystem extends SubsystemBase {
     private int ElevatorStage;
 
     private double TargetElevatorHeight, ElevatorError;
     private double CurrentElevatorHeight;
 
-    private String testString;
-
     private ElevatorFeedforward elevatorFeedForward;
 
     private TalonFX elevator;
 
+    private ElapsedTime runTime;
+    private double frameTime = 0;
+
+    private DoubleSupplier ManualControlAxis = () -> 0;
+
+
     //temp
-    private DoubleSupplier testEle;
+    //private DoubleSupplier testEle;
 
 
-    public CoralArmSystem(String s) {
+    public CoralElevatorSystem() {
         elevator = new TalonFX(MotorConstants.elevatorID);
         elevator.setNeutralMode(NeutralModeValue.Brake);
         TargetElevatorHeight = 0.0;
         elevatorFeedForward = new ElevatorFeedforward(CoralSystemSettings.kSE, CoralSystemSettings.kGE, CoralSystemSettings.kVE);
 
-        testString = s;
+        runTime = new ElapsedTime(Resolution.SECONDS);
 
         //put numbers so we can grab latter brr
         SmartDashboard.putNumber("Ele kSE", CoralSystemSettings.kSA);
         SmartDashboard.putNumber("Ele kGE", CoralSystemSettings.kGA);
         SmartDashboard.putNumber("Ele kVE", CoralSystemSettings.kVA);
         SmartDashboard.putNumber("TargetAngle", 0);
-    }
-    public CoralArmSystem(DoubleSupplier eleControl) {
-        //leftElevator = new TalonFX(MotorConstants.coralLeftElevatorID);
-        //rightElevator = new TalonFX(MotorConstants.coralRightElevatorID);
-        //coralPivot = new TalonFX(MotorConstants.coralPivotID);
-        testEle=eleControl;
 
-        elevatorFeedForward = new ElevatorFeedforward(CoralSystemSettings.kSE, CoralSystemSettings.kGE, CoralSystemSettings.kVE);
+        frameTime = runTime.time();
+        runTime.reset();
     }
+    
     public void setElevatorPos(double pos){
         TargetElevatorHeight = pos;
     }
 
     
     public void update() {
-        
-        if(testEle!=null){
-            elevator.set(-testEle.getAsDouble());
-        }
+        //if(testEle!=null){ elevator.set(-testEle.getAsDouble()); }
+
+        TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;
       
         //Update elevator position
         if (-elevator.getPosition().getValueAsDouble()<0) 
             CurrentElevatorHeight = 0;
         else CurrentElevatorHeight = -elevator.getPosition().getValueAsDouble()*CoralSystemSettings.elevatorRotationsToInches; //add offset later
 
+        // limits
+        TargetElevatorHeight = Functions.minMaxValue(CoralSystemSettings.minHeight, CoralSystemSettings.maxHeight, TargetElevatorHeight);
 
         //Calculate error
         ElevatorError=TargetElevatorHeight-CurrentElevatorHeight;
         
-        //Move motors
+        //Move motor
         if(Math.abs(ElevatorError)<CoralSystemSettings.elevatorTolerance) {
             elevator.setVoltage(-elevatorFeedForward.calculate(0));
         } else{
             elevator.setVoltage(-elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
         }
         
-        
-
     }
 
 
     @Override
     public void periodic() {
-
-
+        frameTime = runTime.time();
+        runTime.reset();
         
         //Smart Dashboard updates
         SmartDashboard.putNumber("ElevatorHeight", CurrentElevatorHeight);
@@ -112,8 +115,7 @@ public class CoralArmSystem extends SubsystemBase {
         
     }
     public boolean atPosition(){
-        if(Math.abs(ElevatorError)<CoralSystemSettings.elevatorTolerance)
-        return true;
+        if(Math.abs(ElevatorError)<CoralSystemSettings.elevatorTolerance) return true;
         return false;
     }
     public int getStage(){
@@ -123,9 +125,14 @@ public class CoralArmSystem extends SubsystemBase {
         ElevatorStage = newStage;
     }
 
-    @Override
-    public void simulationPeriodic() {
-        // This method will be called once per scheduler run during simulation
+    
+
+    public void goToPreset(CoralSystemPreset coralSystemPreset) {
+        setElevatorPos(coralSystemPreset.eleHeight);
+    }
+
+    public void setManualControl(DoubleSupplier controlAxis) {
+        ManualControlAxis = controlAxis;
     }
 
 

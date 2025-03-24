@@ -86,6 +86,9 @@ public class Functions {
         return Math.pow(Math.abs(value), Math.abs(mag)) * Math.signum(value); 
     }
 
+    /**
+     * Applies a deadband to the input and also normalizes the output in the remaining range of 0 to 1
+     */
     public static double deadbandValue(double value, double deadband) {
         if (Math.abs(value) < deadband) return 0.0;
         else return (1 - deadband) * value + deadband * Math.signum(value);
