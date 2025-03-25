@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj.Joystick;
@@ -20,6 +21,11 @@ public class DrivingProfiles extends SubsystemBase {
     private DoubleSupplier fowardControllerInput, strafeControllerInput, rotationControllerInput, throttleControllerInput;
     private DoubleSupplier fowardJoystickInput, strafeJoystickInput, rotationJoystickInput, throttleJoystickInput;
     private DoubleSupplier autoThrottleControllerInput, autoThrottleJoystickInput;
+    private DoubleSupplier povInput;
+
+    private double miniPower = 0.08;
+
+    private boolean usePov = false;
 
     private double forwardOutput = 0, strafeOutput = 0, rotationOutput = 0;
 
@@ -91,6 +97,11 @@ public class DrivingProfiles extends SubsystemBase {
         this.autoThrottleJoystickInput = autoThrottleJoystickInput;
     }
 
+    public void setUpDpadControls(DoubleSupplier povInput) {
+        this.povInput = povInput;
+        usePov = true;
+    }
+
 
     public void update() {
         if (preferController) {
@@ -101,6 +112,10 @@ public class DrivingProfiles extends SubsystemBase {
             if (updateJoystick());
             else if (updateController());
             else stopDriving();
+        }
+        if (usePov && povInput.getAsDouble() >= 0) { // returns -1 when not pressed
+            forwardOutput += miniPower * Math.sin(Math.toRadians(povInput.getAsDouble()));
+            strafeOutput += miniPower * Math.cos(Math.toRadians(povInput.getAsDouble()));
         }
 
         if (autoAiming) updateAutoAiming();
@@ -147,7 +162,7 @@ public class DrivingProfiles extends SubsystemBase {
         forwardOutput = Math.sin(Direction) * drivePower;
         strafeOutput = Math.cos(Direction) * drivePower;
         rotationOutput = Functions.throttleCurve(turn, joystickTurnCurveMag) * throttle;
-
+        
         return !(joystickPower == 0.0 && turn == 0.0); // returns true if in use
     }
 

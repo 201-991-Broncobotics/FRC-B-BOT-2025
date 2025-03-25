@@ -65,7 +65,7 @@ public class DiffyCoralClaw extends SubsystemBase {
     private double lastManualControl1 = 0, lastManualControl2 = 0;
     private double overrideOverrideTolerance = 0.1; // units are joystick input
 
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     public DiffyCoralClaw() {
         RollerPower = 0;
@@ -167,7 +167,7 @@ public class DiffyCoralClaw extends SubsystemBase {
             rmotor.set(0);
         }
 
-        rollerMotor.set(RollerPower);
+        rollerMotor.set(-RollerPower);
         
     }
 
@@ -294,6 +294,13 @@ public class DiffyCoralClaw extends SubsystemBase {
             lastManualControl1 = ManualControlAxis1.getAsDouble();
             lastManualControl2 = ManualControlAxis2.getAsDouble();
         }
+    }
+
+
+    public void switchRotation() {
+        if (TargetRoll > Math.toRadians(45) || TargetRoll < Math.toRadians(-45)) TargetRoll = Math.toRadians(0);
+        else TargetRoll = Math.toRadians(90);
+        
     }
 
 

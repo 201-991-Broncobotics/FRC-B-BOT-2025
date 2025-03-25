@@ -12,7 +12,7 @@ import frc.robot.utility.CoralSystemPreset;
  */
 public class Settings {
 
-    public static boolean useNormalControls = false;
+    public static boolean useNormalControls = true;
     public static boolean tuningTelemetryEnabled = true;
 
     public static class CoralSystemSettings {
@@ -33,7 +33,7 @@ public class Settings {
         public static double maxHeight = 50;
         public static double minHeight = 0;
 
-        public static double manualControlSpeed = 15; // max speed in inches per second 
+        public static double manualControlSpeed = 25; // max speed in inches per second 
 
     }
 
@@ -53,8 +53,8 @@ public class Settings {
         public static double rollRange = Math.toRadians(180.0);
 
         // Roller
-        public static double intakePower = 0.2;
-        public static double holdPower = 0.05; 
+        public static double intakePower = 0.7;
+        public static double holdPower = 0.12; 
         public static double outtakePower = -0.5;
 
         // These are for manually telling the claw to go to a position for testing
@@ -93,10 +93,10 @@ public class Settings {
         public static double HoldPower = 0.15;
         public static double OuttakePower = -0.7;
 
-        public static int algaeRollerHasIntakedCurrent = 30;
-        public static int algaeRollerStallCurrent = 40;
+        public static int algaeRollerHasIntakedCurrent = 40;
+        public static int algaeRollerStallCurrent = 25;
 
-        public static double manualControlSpeed = 20; // max speed in degrees per second 
+        public static double manualControlSpeed = Math.toRadians(70); // max speed in radians per second 
         
     }
 
@@ -116,9 +116,9 @@ public class Settings {
     public static class CoralSystemPresets {
 
         // Elevator Height (inches), Diffy Pitch (degrees), Diffy Roll (degrees)
-        public static CoralSystemPreset GroundIntake = new CoralSystemPreset(0, -30, 0);
+        public static CoralSystemPreset GroundIntake = new CoralSystemPreset(0, -27, 0);
         public static CoralSystemPreset CoralStationIntake = new CoralSystemPreset(11, 70, 0);
-        public static CoralSystemPreset L4Reef = new CoralSystemPreset(50, 70, 90);
+        public static CoralSystemPreset L4Reef = new CoralSystemPreset(50, 85, 90);
         public static CoralSystemPreset L3Reef = new CoralSystemPreset(35, 55, 90);
         public static CoralSystemPreset L2Reef = new CoralSystemPreset(25, 55, 90);
         public static CoralSystemPreset L1Reef = new CoralSystemPreset(0, 80, 0);
