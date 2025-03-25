@@ -4,6 +4,7 @@ import static frc.robot.Settings.CoralClawSettings.*;
 
 import java.util.function.DoubleSupplier;
 
+import static edu.wpi.first.units.Units.Amps;
 import static frc.robot.Constants.MotorConstants.*;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Settings;
@@ -28,6 +29,8 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.ctre.phoenix6.StatusCode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 
 public class DiffyCoralClaw extends SubsystemBase {
@@ -44,6 +47,9 @@ public class DiffyCoralClaw extends SubsystemBase {
 
     private TalonFX lmotor, rmotor;
     private SparkMax rollerMotor;
+    private StatusCode lMotorConfig, rMotorConfig;
+    private CurrentLimitsConfigs currentLimitConfigs;
+
     private DoubleSupplier rencoder,lencoder; // gets angle in radians at the joint
     private double gearRatio = 1.0/3.0 * 1.0/5.0; // gear ratio from motor to each joint side
 
@@ -83,22 +89,32 @@ public class DiffyCoralClaw extends SubsystemBase {
         // configure motors
         lmotor.setNeutralMode(NeutralModeValue.Brake);
         rmotor.setNeutralMode(NeutralModeValue.Brake);
+        
+        // Falcon current limits so we don't break the super weak tiny 3d printed pulleys that someone thought was a good idea
+        currentLimitConfigs = new CurrentLimitsConfigs()
+             .withStatorCurrentLimit(Amps.of(CoralClawSettings.DiffyMotorCurrentLimit))
+             .withStatorCurrentLimitEnable(true);
+             
+        lMotorConfig = lmotor.getConfigurator().apply(currentLimitConfigs);
+        rMotorConfig = rmotor.getConfigurator().apply(currentLimitConfigs);
+
 
         rollerMotorConfig = new SparkMaxConfig();
         rollerMotorConfig.idleMode(IdleMode.kCoast);
+        rollerMotorConfig.smartCurrentLimit(CoralClawSettings.RollerCurrentLimit);
         rollerMotor.configure(rollerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         // setup absolute encoders
-        lThroughBore = new ThroughBoreEncoder(0, 1, 2, true, true); // Digital ports on the RobotRio
-        rThroughBore = new ThroughBoreEncoder(3, 4, 5, true, true);
+        lThroughBore = new ThroughBoreEncoder(0, 1, 2); // Digital ports on the RobotRio
+        rThroughBore = new ThroughBoreEncoder(3, 4, 5);
 
         lThroughBore.resetRelative();
         lThroughBore.setAbsoluteZero(Math.toRadians(240.528966));
         rThroughBore.resetRelative();
         rThroughBore.setAbsoluteZero(Math.toRadians(237.302106));
 
-        lThroughBore.setRelativeZero(lThroughBore.getAbsoluteAngle());
-        rThroughBore.setRelativeZero(rThroughBore.getAbsoluteAngle());
+        lThroughBore.setRelativeZero(lThroughBore.getAbsoluteAngleNorm());
+        rThroughBore.setRelativeZero(rThroughBore.getAbsoluteAngleNorm());
 
         // flip negatives for absolute
         // Encoder object created to display position values
@@ -114,8 +130,8 @@ public class DiffyCoralClaw extends SubsystemBase {
             SmartDashboard.putNumber("Tune Right Coral Claw kI", CoralClawSettings.RightDiffyPID.getI());
             SmartDashboard.putNumber("Tune Right Coral Claw kD", CoralClawSettings.RightDiffyPID.getD());
 
-            SmartDashboard.putNumber("Testing Diffy Pitch", CoralClawSettings.testingPitch);
-            SmartDashboard.putNumber("Testing Diffy Roll", CoralClawSettings.testingRoll);
+            //SmartDashboard.putNumber("Testing Diffy Pitch", CoralClawSettings.testingPitch);
+            //SmartDashboard.putNumber("Testing Diffy Roll", CoralClawSettings.testingRoll);
         }
 
         frameTime = runTime.time();
@@ -153,8 +169,8 @@ public class DiffyCoralClaw extends SubsystemBase {
         TargetRoll = Functions.minMaxValue(-0.5*rollRange, 0.5*rollRange, TargetRoll);
 
         // find motor target positions
-        LeftDiffyTarget = TargetPitch-(TargetRoll); 
-        RightDiffyTarget = TargetPitch+(TargetRoll); 
+        LeftDiffyTarget = TargetPitch - (TargetRoll * CoralClawSettings.rollAngleExaggeration); 
+        RightDiffyTarget = TargetPitch + (TargetRoll * CoralClawSettings.rollAngleExaggeration); 
 
         //RightDiffyTarget = Functions.minMaxValue(-110, 180, RightDiffyTarget);
         //LeftDiffyTarget = Functions.minMaxValue(-125, 110, LeftDiffyTarget);
@@ -189,39 +205,31 @@ public class DiffyCoralClaw extends SubsystemBase {
             CoralClawSettings.RightDiffyPID.setI(SmartDashboard.getNumber("Tune Right Coral Claw kI", CoralClawSettings.RightDiffyPID.getI()));
             CoralClawSettings.RightDiffyPID.setD(SmartDashboard.getNumber("Tune Right Coral Claw kD", CoralClawSettings.RightDiffyPID.getD()));
 
-            CoralClawSettings.testingPitch = SmartDashboard.getNumber("Testing Diffy Pitch", CoralClawSettings.testingPitch);
-            CoralClawSettings.testingRoll = SmartDashboard.getNumber("Testing Diffy Roll", CoralClawSettings.testingRoll);
+            //CoralClawSettings.testingPitch = SmartDashboard.getNumber("Testing Diffy Pitch", CoralClawSettings.testingPitch);
+            //CoralClawSettings.testingRoll = SmartDashboard.getNumber("Testing Diffy Roll", CoralClawSettings.testingRoll);
         }
 
         SmartDashboard.putNumber("CoralClaw Target Pitch", Math.toDegrees(TargetPitch));
         SmartDashboard.putNumber("CoralClaw Target Roll", Math.toDegrees(TargetRoll));
         SmartDashboard.putNumber("CoralClaw Current Pitch", Math.toDegrees(getCurrentPitch()));
         SmartDashboard.putNumber("CoralClaw Current Roll", Math.toDegrees(getCurrentRoll()));
-        SmartDashboard.putNumber("CoralClaw Right Motor Power", rmotor.getMotorVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("CoralClaw Left Motor Power", lmotor.getMotorVoltage().getValueAsDouble());
+        //SmartDashboard.putNumber("CoralClaw Right Motor Power", rmotor.getMotorVoltage().getValueAsDouble());
+        //SmartDashboard.putNumber("CoralClaw Left Motor Power", lmotor.getMotorVoltage().getValueAsDouble());
 
         SmartDashboard.putNumber("CoralClaw Right Motor Target", Math.toDegrees(RightDiffyTarget));
         SmartDashboard.putNumber("CoralClaw Left Motor Target", Math.toDegrees(LeftDiffyTarget));
-        SmartDashboard.putNumber("CoralClaw Right Motor Position", rmotor.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("CoralClaw Left Motor Position", lmotor.getPosition().getValueAsDouble());
+        //SmartDashboard.putNumber("CoralClaw Right Motor Position", rmotor.getPosition().getValueAsDouble());
+        //SmartDashboard.putNumber("CoralClaw Left Motor Position", lmotor.getPosition().getValueAsDouble());
 
-        SmartDashboard.putNumber("CoralClaw Roller Power", RollerPower);
+        // SmartDashboard.putNumber("CoralClaw Roller Power", RollerPower);
         SmartDashboard.putNumber("Coral Roller Current", rollerMotor.getOutputCurrent());
 
         SmartDashboard.putNumber("CoralClaw Right Encoder Position", Math.toDegrees(rencoder.getAsDouble()));
         SmartDashboard.putNumber("CoralClaw Left Encoder Position", Math.toDegrees(lencoder.getAsDouble()));
 
-        /* 
-        if (rThroughBore.encoderExists()) {
-            
-            SmartDashboard.putNumber("Right ThroughBore Relative Angle", Math.toDegrees(rThroughBore.getRelativeAngle()));
-            SmartDashboard.putNumber("Right ThroughBore Absolute Angle", Math.toDegrees(rThroughBore.getAbsoluteAngle()));
 
-            SmartDashboard.putNumber("Left ThroughBore Relative Angle", Math.toDegrees(lThroughBore.getRelativeAngle()));
-            SmartDashboard.putNumber("Left ThroughBore Absolute Angle", Math.toDegrees(lThroughBore.getAbsoluteAngle()));
-        }
-        */
-        
+        SmartDashboard.putNumber("Right ThroughBore Absolute Angle", Math.toDegrees(rThroughBore.getAbsoluteAngleNorm()));
+        SmartDashboard.putNumber("Left ThroughBore Absolute Angle", Math.toDegrees(lThroughBore.getAbsoluteAngleNorm()));
 
     }
 
@@ -298,9 +306,20 @@ public class DiffyCoralClaw extends SubsystemBase {
 
 
     public void switchRotation() {
-        if (TargetRoll > Math.toRadians(45) || TargetRoll < Math.toRadians(-45)) TargetRoll = Math.toRadians(0);
+        if (TargetRoll > Math.toRadians(45)) TargetRoll = Math.toRadians(0);
+        else if (TargetRoll > Math.toRadians(-45)) TargetRoll = Math.toRadians(-90);
         else TargetRoll = Math.toRadians(90);
         
+    }
+
+
+    public boolean combinedElevatorCoralPitchControl(double input, double minAngle, double maxAngle) {
+        if ((TargetPitch < maxAngle && input > 0) || (TargetPitch > minAngle && input < 0)) {
+            TargetPitch += input * CoralClawSettings.manualPitchSpeed * frameTime;
+            TargetPitch = Functions.minMaxValue(minAngle, maxAngle, TargetPitch);
+            return false; // don't need to move the elevator yet
+        }
+        return true; // need to move the elevator instead
     }
 
 

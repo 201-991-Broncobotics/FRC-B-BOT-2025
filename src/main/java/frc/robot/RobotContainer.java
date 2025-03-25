@@ -44,7 +44,7 @@ public class RobotContainer {
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.02).withRotationalDeadband(MaxAngularRate * 0.02) // Add a 10% deadband - now 6%
+            .withDeadband(MaxSpeed * 0.02).withRotationalDeadband(MaxAngularRate * 0.02) // Add a 10% deadband - now 2%
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
@@ -95,7 +95,7 @@ public class RobotContainer {
                 () -> driverJoystick.getLeftX(), 
                 () -> -driverJoystick.getRightX(), 
                 () -> 0.3 + 0.7 * driverJoystick.getRightTriggerAxis(), 
-                2, 2
+                3, 2
             );
 
             drivingProfile.setUpJoystickInputs(
@@ -162,10 +162,10 @@ public class RobotContainer {
 
             // Run SysId routines when holding back/start and X/Y.
             // Note that each routine should be run exactly once in a single log.
-            driverJoystick.back().and(driverJoystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-            driverJoystick.back().and(driverJoystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-            driverJoystick.start().and(driverJoystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-            driverJoystick.start().and(driverJoystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+            //driverJoystick.back().and(driverJoystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+            //driverJoystick.back().and(driverJoystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+            //driverJoystick.start().and(driverJoystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+            //driverJoystick.start().and(driverJoystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
             
 
 
@@ -202,6 +202,8 @@ public class RobotContainer {
             coralElevatorSystem.setDefaultCommand(new RunCommand(coralElevatorSystem::update, coralElevatorSystem));
             algaeArm.setDefaultCommand(new RunCommand(algaeArm::update, algaeArm));
 
+            
+
         } else {
 
 
@@ -213,6 +215,7 @@ public class RobotContainer {
 
 
             // Joystick only controls because theres so many buttons (:
+            // Or basically Aidan controls because no one likes the extra couple axis of freedom
 
             drivingProfile.setUpControllerInputs(
                 () -> -driverJoystick.getLeftY(), 

@@ -1,9 +1,7 @@
 package frc.robot.utility;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class ThroughBoreEncoder {
 
@@ -14,21 +12,15 @@ public class ThroughBoreEncoder {
 
     private double absoluteEncoderZero = 0, relativeEncoderZero = 0;
 
-    public ThroughBoreEncoder(int channelA, int channelB, int channelC, boolean useAbolute, boolean useRelative) {
+    public ThroughBoreEncoder(int channelA, int channelB, int channelC) {
 
-        // DigitalInput channelAPort = new DigitalInput(channelA);
-
-        if (useAbolute) {
+        if (channelA >= 0) {
             absoluteEncoder = new DutyCycleEncoder(channelA);
         }
-        if (useRelative) {
+        if (channelB >= 0 && channelC >= 0) {
             relativeEncoder = new Encoder(channelB, channelC);
         }
 
-    }
-
-    public ThroughBoreEncoder(int channelA, int channelB, int channelC) {
-        new ThroughBoreEncoder(channelA, channelB, channelC, true, true);
     }
 
     /**
@@ -36,7 +28,7 @@ public class ThroughBoreEncoder {
      * @param channelA
      */
     public ThroughBoreEncoder(int channelA) {
-        new ThroughBoreEncoder(channelA, 0, 0, true, false);
+        new ThroughBoreEncoder(channelA, -1, -1);
     }
 
     /**
@@ -45,20 +37,31 @@ public class ThroughBoreEncoder {
      * @param channelC
      */
     public ThroughBoreEncoder(int channelB, int channelC) {
-        new ThroughBoreEncoder(0, channelB, channelC, false, true);
+        new ThroughBoreEncoder(-1, channelB, channelC);
     }
 
-    public double getRelativeRaw() { return relativeEncoder.getRaw(); } // (relativeEncoder != null) ? relativeEncoder.getRaw() : 0.0;
-    public double getAbsoluteRaw() { return absoluteEncoder.get(); } // return (absoluteEncoder != null) ? absoluteEncoder.getFrequency() : 0.0;
+    public double getRelativeRaw() { return relativeEncoder.getRaw(); }
+    public double getAbsoluteRaw() { return absoluteEncoder.get(); }
 
+    /**
+     * Gets the relative angle in radians
+     * @return angle in radians
+     */
     public double getRelativeAngle() { return getRelativeRaw() / relativeResolution * 2*Math.PI - relativeEncoderZero; }
-    public double getAbsoluteAngle() { return getAbsoluteRaw() * 2*Math.PI - absoluteEncoderZero; }
+    /**
+     * Returns absolute angle between 0 and 2pi
+     * @return angle in radians between 0 and 2pi
+     */
+    public double getAbsoluteAngle() { return Functions.normalizeAnglePositive(getAbsoluteRaw() * 2*Math.PI - absoluteEncoderZero); }
+    /**
+     * Normalizes the angle between -pi and pi
+     * @return angle in radians between -pi and pi
+     */
+    public double getAbsoluteAngleNorm() { return Functions.normalizeAngle(getAbsoluteRaw() * 2*Math.PI - absoluteEncoderZero); }
 
     public void resetRelative() { relativeEncoder.reset(); }
     public void setRelativeZero(double relativeZero) { relativeEncoderZero = relativeZero; }
     public void setAbsoluteZero(double absoluteZero) { absoluteEncoderZero = absoluteZero; }
-
-    public boolean isAbsoluteConnected() { return absoluteEncoder.isConnected(); }
 
     public boolean encoderExists() { return this.relativeEncoder != null; }
 

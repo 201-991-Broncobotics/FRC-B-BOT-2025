@@ -41,8 +41,8 @@ public class Settings {
         public static double startRoll = Math.toRadians(0);
         public static double startPitch = Math.toRadians(0);
 
-        public static PIDController LeftDiffyPID = new PIDController(0.08, 0, 0); // 0, 0, 0
-        public static PIDController RightDiffyPID = new PIDController(0.08, 0, 0); // 0, 0, 0
+        public static PIDController LeftDiffyPID = new PIDController(0.08, 0, 0); 
+        public static PIDController RightDiffyPID = new PIDController(0.08, 0, 0); 
 
         // gravity power
         public static double gravityPower = 0.0;
@@ -61,9 +61,13 @@ public class Settings {
         public static double testingPitch = 0;
         public static double testingRoll = 0;
 
-        public static double manualPitchSpeed = 10;
-        public static double manualRollSpeed = 10;
+        public static double manualPitchSpeed = 45;
+        public static double manualRollSpeed = 45;
 
+        public static double rollAngleExaggeration = 1.05; // slightly increases roll inputs so that they finish moving all the way
+        public static int RollerCurrentLimit = 15;
+
+        public static int DiffyMotorCurrentLimit = 100;
     }
 
 
@@ -96,7 +100,7 @@ public class Settings {
         public static int algaeRollerHasIntakedCurrent = 40;
         public static int algaeRollerStallCurrent = 25;
 
-        public static double manualControlSpeed = Math.toRadians(70); // max speed in radians per second 
+        public static double manualControlSpeed = Math.toRadians(90); // max speed in radians per second 
         
     }
 
@@ -117,7 +121,7 @@ public class Settings {
 
         // Elevator Height (inches), Diffy Pitch (degrees), Diffy Roll (degrees)
         public static CoralSystemPreset GroundIntake = new CoralSystemPreset(0, -27, 0);
-        public static CoralSystemPreset CoralStationIntake = new CoralSystemPreset(11, 70, 0);
+        public static CoralSystemPreset CoralStationIntake = new CoralSystemPreset(11, 75, 0);
         public static CoralSystemPreset L4Reef = new CoralSystemPreset(50, 85, 90);
         public static CoralSystemPreset L3Reef = new CoralSystemPreset(35, 55, 90);
         public static CoralSystemPreset L2Reef = new CoralSystemPreset(25, 55, 90);

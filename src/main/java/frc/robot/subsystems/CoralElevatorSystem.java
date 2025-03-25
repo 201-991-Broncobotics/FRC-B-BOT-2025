@@ -10,6 +10,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Settings.CoralClawSettings;
 import frc.robot.Settings.CoralSystemPresets;
 import frc.robot.Settings.CoralSystemSettings;
 import frc.robot.utility.CoralSystemPreset;
@@ -39,6 +40,8 @@ public class CoralElevatorSystem extends SubsystemBase {
     private boolean overrideManualControl = false;
     private double lastManualControl = 0;
     private double overrideOverrideTolerance = 0.05; // units are joystick input
+
+    private DiffyCoralClaw coralClawReference;
 
 
     //temp
@@ -72,8 +75,17 @@ public class CoralElevatorSystem extends SubsystemBase {
         //if(testEle!=null){ elevator.set(-testEle.getAsDouble()); }
 
         if (!GoToPosition) {
-            if (Math.abs(ManualControlAxis.getAsDouble()) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
-            if (!overrideManualControl) TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;
+
+            if (coralClawReference.combinedElevatorCoralPitchControl(ManualControlAxis.getAsDouble(), 
+                    (TargetElevatorHeight == CoralSystemSettings.minHeight) ? CoralSystemPresets.GroundIntake.clawPitch : Math.toRadians(20), // min angle is 20 unless elevator is at the bottom
+                    (TargetElevatorHeight == CoralSystemSettings.maxHeight) ? CoralClawSettings.maxPitch : Math.toRadians(70) // max angle is 70 unless elevator is at the top
+            )) { // ^ this returns true if the diffy arm is already at its min or max angle and the elevator can move instead
+                if (Math.abs(ManualControlAxis.getAsDouble()) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
+                if (!overrideManualControl) TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;
+            }
+
+            //if (Math.abs(ManualControlAxis.getAsDouble()) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
+            //if (!overrideManualControl) TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;
         } else {
             if (Math.abs(ManualControlAxis.getAsDouble() - lastManualControl) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
             if (!overrideManualControl) TargetElevatorHeight = ManualControlAxis.getAsDouble() * (CoralSystemSettings.maxHeight - CoralSystemSettings.minHeight) + CoralSystemSettings.minHeight;

@@ -113,9 +113,11 @@ public class DrivingProfiles extends SubsystemBase {
             else if (updateController());
             else stopDriving();
         }
+
         if (usePov && povInput.getAsDouble() >= 0) { // returns -1 when not pressed
-            forwardOutput += miniPower * Math.sin(Math.toRadians(povInput.getAsDouble()));
-            strafeOutput += miniPower * Math.cos(Math.toRadians(povInput.getAsDouble()));
+            // pov is stupid: 0° is forward, 90° is right, 270° is left
+            forwardOutput += miniPower * Math.cos(Math.toRadians(povInput.getAsDouble()));
+            strafeOutput += miniPower * Math.sin(Math.toRadians(povInput.getAsDouble()));
         }
 
         if (autoAiming) updateAutoAiming();
@@ -137,8 +139,8 @@ public class DrivingProfiles extends SubsystemBase {
 
         if (joystickPower == 0.0) drivePower = 0; // just to make sure
 
-        forwardOutput = Math.sin(Direction) * drivePower;
-        strafeOutput = Math.cos(Direction) * drivePower;
+        forwardOutput = Math.cos(Direction) * drivePower;
+        strafeOutput = Math.sin(Direction) * drivePower;
         rotationOutput = Functions.throttleCurve(turn, controllerTurnCurveMag) * throttle;
 
         return !(joystickPower == 0.0 && turn == 0.0); // returns true if in use
