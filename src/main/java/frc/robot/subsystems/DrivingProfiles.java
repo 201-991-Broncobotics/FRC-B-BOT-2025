@@ -116,8 +116,8 @@ public class DrivingProfiles extends SubsystemBase {
 
         if (usePov && povInput.getAsDouble() >= 0) { // returns -1 when not pressed
             // pov is stupid: 0° is forward, 90° is right, 270° is left
-            forwardOutput += miniPower * Math.cos(Math.toRadians(povInput.getAsDouble()));
-            strafeOutput += miniPower * Math.sin(Math.toRadians(povInput.getAsDouble()));
+            forwardOutput -= miniPower * Math.cos(Math.toRadians(povInput.getAsDouble()));
+            strafeOutput -= miniPower * Math.sin(Math.toRadians(povInput.getAsDouble()));
         }
 
         if (autoAiming) updateAutoAiming();

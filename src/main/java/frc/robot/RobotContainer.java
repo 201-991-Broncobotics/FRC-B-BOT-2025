@@ -94,7 +94,7 @@ public class RobotContainer {
         if (Settings.useNormalControls) {
             drivingProfile.setUpControllerInputs(
                 () -> -driverJoystick.getLeftY(), 
-                () -> driverJoystick.getLeftX(), 
+                () -> -driverJoystick.getLeftX(), 
                 () -> -driverJoystick.getRightX(), 
                 () -> 0.3 + 0.7 * driverJoystick.getRightTriggerAxis(), 
                 3, 2
@@ -222,7 +222,7 @@ public class RobotContainer {
 
             drivingProfile.setUpControllerInputs(
                 () -> -driverJoystick.getLeftY(), 
-                () -> driverJoystick.getLeftX(), 
+                () -> -driverJoystick.getLeftX(), 
                 () -> -driverJoystick.getRightX(), 
                 () -> 0.5 + 0.5 * driverJoystick.getRightTriggerAxis(), 
                 2, 2
