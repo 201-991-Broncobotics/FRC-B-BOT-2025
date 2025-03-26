@@ -29,6 +29,7 @@ import frc.robot.Settings.CoralSystemPresets;
 import frc.robot.commands.CoralArmTeleOpCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.AlgaeArm;
+import frc.robot.subsystems.ClimbingSystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoralElevatorSystem;
 import frc.robot.subsystems.DrivingProfiles;
@@ -61,9 +62,10 @@ public class RobotContainer {
 
     public final AlgaeArm algaeArm = new AlgaeArm();
     public final DiffyCoralClaw coralClaw = new DiffyCoralClaw();
+    public final ClimbingSystem climbingSystem = new ClimbingSystem();
 
 
-    public final CoralElevatorSystem coralElevatorSystem = new CoralElevatorSystem();
+    public final CoralElevatorSystem coralElevatorSystem = new CoralElevatorSystem(coralClaw);
 
     private final CoralArmTeleOpCommand runElevatorUp = new CoralArmTeleOpCommand(coralElevatorSystem, 1);
     private final CoralArmTeleOpCommand runElevatorDown = new CoralArmTeleOpCommand(coralElevatorSystem, -1);
@@ -201,6 +203,7 @@ public class RobotContainer {
             coralClaw.setDefaultCommand(new RunCommand(coralClaw::update, coralClaw));
             coralElevatorSystem.setDefaultCommand(new RunCommand(coralElevatorSystem::update, coralElevatorSystem));
             algaeArm.setDefaultCommand(new RunCommand(algaeArm::update, algaeArm));
+            climbingSystem.setDefaultCommand(new RunCommand(climbingSystem::update, climbingSystem));
 
             
 
@@ -302,6 +305,7 @@ public class RobotContainer {
             coralClaw.setDefaultCommand(new RunCommand(coralClaw::update, coralClaw));
             coralElevatorSystem.setDefaultCommand(new RunCommand(coralElevatorSystem::update, coralElevatorSystem));
             algaeArm.setDefaultCommand(new RunCommand(algaeArm::update, algaeArm));
+            climbingSystem.setDefaultCommand(new RunCommand(climbingSystem::update, climbingSystem));
 
         }
         

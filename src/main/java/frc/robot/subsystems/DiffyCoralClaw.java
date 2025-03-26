@@ -113,8 +113,12 @@ public class DiffyCoralClaw extends SubsystemBase {
         rThroughBore.resetRelative();
         rThroughBore.setAbsoluteZero(Math.toRadians(237.302106));
 
-        lThroughBore.setRelativeZero(lThroughBore.getAbsoluteAngleNorm());
-        rThroughBore.setRelativeZero(rThroughBore.getAbsoluteAngleNorm());
+        double lAbsoluteAngle = lThroughBore.getAbsoluteAngleNorm();
+        double rAbsoluteAngle = rThroughBore.getAbsoluteAngleNorm();
+        if (lAbsoluteAngle < -Math.PI/2) lAbsoluteAngle += 2*Math.PI; // supposed to allow start position to not completely mess up
+
+        lThroughBore.setRelativeZero(lAbsoluteAngle);
+        rThroughBore.setRelativeZero(rAbsoluteAngle);
 
         // flip negatives for absolute
         // Encoder object created to display position values
@@ -230,6 +234,12 @@ public class DiffyCoralClaw extends SubsystemBase {
 
         SmartDashboard.putNumber("Right ThroughBore Absolute Angle", Math.toDegrees(rThroughBore.getAbsoluteAngleNorm()));
         SmartDashboard.putNumber("Left ThroughBore Absolute Angle", Math.toDegrees(lThroughBore.getAbsoluteAngleNorm()));
+
+        SmartDashboard.putNumber("Left ThroughBore Relative Raw", Math.toDegrees(lThroughBore.getRelativeRaw()));
+        SmartDashboard.putNumber("Left ThroughBore Absolute Raw", Math.toDegrees(lThroughBore.getAbsoluteRaw()));
+
+        SmartDashboard.putBoolean("Right Encoder Connected", rThroughBore.encoderConnected());
+        SmartDashboard.putBoolean("Left Encoder Connected", lThroughBore.encoderConnected());
 
     }
 

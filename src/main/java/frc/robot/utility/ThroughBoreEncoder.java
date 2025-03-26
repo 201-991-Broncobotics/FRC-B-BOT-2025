@@ -64,6 +64,7 @@ public class ThroughBoreEncoder {
     public void setAbsoluteZero(double absoluteZero) { absoluteEncoderZero = absoluteZero; }
 
     public boolean encoderExists() { return this.relativeEncoder != null; }
+    public boolean encoderConnected() { return absoluteEncoder.isConnected(); }
 
 
 }

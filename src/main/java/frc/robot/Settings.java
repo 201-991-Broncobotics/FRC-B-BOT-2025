@@ -61,21 +61,24 @@ public class Settings {
         public static double testingPitch = 0;
         public static double testingRoll = 0;
 
-        public static double manualPitchSpeed = 45;
+        public static double manualPitchSpeed = 30;
         public static double manualRollSpeed = 45;
 
         public static double rollAngleExaggeration = 1.05; // slightly increases roll inputs so that they finish moving all the way
-        public static int RollerCurrentLimit = 15;
+        public static int RollerCurrentLimit = 20;
 
         public static int DiffyMotorCurrentLimit = 100;
     }
 
 
     public static class ClimbingSettings{
-        public static double climbingSpeed = 1;
+        public static double climbingSpeed = 0.05;
 
         public static double maxEncoderPosition = 85;
         public static double minEncoderPosition = 0;
+
+        public static boolean useCurrentLimit = true;
+        public static int currentLimit = 30;
     }
 
     public static class AlgaeArmSettings {
