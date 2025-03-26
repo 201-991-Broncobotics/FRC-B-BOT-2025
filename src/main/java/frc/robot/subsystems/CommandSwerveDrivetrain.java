@@ -15,6 +15,7 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.utility.LimelightHelpers;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -286,6 +288,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         gyroData.angVelX = getPigeon2().getAngularVelocityXDevice().getValueAsDouble();
         gyroData.angVelY = getPigeon2().getAngularVelocityYDevice().getValueAsDouble();
         gyroData.angVelZ = getPigeon2().getAngularVelocityZDevice().getValueAsDouble();
+
+
+        // apply limelight data if it sees any apriltags
+        if (LimelightHelpers.getTV("")) {
+            
+            LimelightHelpers.SetRobotOrientation("", gyroData.yaw, 0, gyroData.pitch, 0.0, gyroData.roll, 0.0);
+
+            LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+
+            setVisionMeasurementStdDevs(VecBuilder.fill(.5, .5, 9999999));
+            addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+        }
+
+        gyroData.robotPose = getState().Pose; // This method was so hard to find
+
     }
 
     private void startSimThread() {
@@ -348,5 +365,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         public static double angVelX = 0;
         public static double angVelY = 0;
         public static double angVelZ = 0;
+
+        public static Pose2d robotPose; // technically not gyro data but I want to access it from a static context
     }
 }

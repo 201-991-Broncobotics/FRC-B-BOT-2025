@@ -34,8 +34,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.CoralElevatorSystem;
 import frc.robot.subsystems.DrivingProfiles;
 import frc.robot.subsystems.DiffyCoralClaw;
-import frc.robot.subsystems.Vision;
 import frc.robot.utility.Functions;
+import frc.robot.utility.LimelightHelpers;
 
 
 
@@ -54,9 +54,9 @@ public class RobotContainer {
     private final CommandXboxController operatorJoystick = new CommandXboxController(1);
     private final Joystick driverFlightHotasOne = new Joystick(2);
 
-    private final Vision vision = new Vision();
+    private final LimelightHelpers vision = new LimelightHelpers(); // idk maybe initializes itself
 
-    private final DrivingProfiles drivingProfile = new DrivingProfiles(vision);
+    private final DrivingProfiles drivingProfile = new DrivingProfiles();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 

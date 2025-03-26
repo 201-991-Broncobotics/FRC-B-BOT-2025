@@ -46,6 +46,7 @@ public class Settings {
 
         // gravity power
         public static double gravityPower = 0.0;
+        public static boolean useDriveCompensation = false; // helps compensate for accelerating
 
         //Limits
         public static double maxPitch = Math.toRadians(95.0); // radians
@@ -105,6 +106,10 @@ public class Settings {
 
         public static double manualControlSpeed = Math.toRadians(90); // max speed in radians per second 
         
+        // gravity power
+        public static double gravityPower = 0.0;
+        public static boolean useDriveCompensation = false; // helps compensate for accelerating
+
     }
 
     public static class AutoTargetingSettings {
@@ -117,6 +122,8 @@ public class Settings {
         public static double targetPercentageOfVisionBlocked = 0.2;
 
         public static double searchingSpeed = 0.5;
+
+        public static double leftReefCrosshairOffset = 0;
 
     }
 
