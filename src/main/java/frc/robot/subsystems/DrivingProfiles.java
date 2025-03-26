@@ -170,17 +170,18 @@ public class DrivingProfiles extends SubsystemBase {
 
 
     private void updateAutoAiming() {
-        autoRotationOutput = Functions.minMaxValue(-1, 1, AutoTargetingSettings.AutoAimPID.calculate(camera.getTX(), 0.0));
+        
 
-        if (AutoTargetingSettings.AutoAimingEnabled) {
-            if (camera.isTargetValid()) {
-                rotationOutput = autoRotationOutput;
-            } else {
-                if (lastSawObjectOnLeft) rotationOutput = AutoTargetingSettings.searchingSpeed;
-                else rotationOutput = -AutoTargetingSettings.searchingSpeed;
-            }
+        if (camera.isTargetValid()) {
+            autoRotationOutput = Functions.minMaxValue(-1, 1, AutoTargetingSettings.AutoAimPID.calculate(camera.getTX(), 0.0));
             
+            if (AutoTargetingSettings.AutoAimingEnabled) rotationOutput = autoRotationOutput;
+
+        } else if (AutoTargetingSettings.AutoAimingEnabled) {
+            if (lastSawObjectOnLeft) rotationOutput = AutoTargetingSettings.searchingSpeed;
+            else rotationOutput = -AutoTargetingSettings.searchingSpeed;
         }
+
     }
 
     private void updateAutoDriving() {

@@ -10,7 +10,7 @@ public class Vision {
     private final NetworkTable m_limelightTable;
     private double tv, tx, ta;
     private ArrayList<Double> m_targetList;
-    private final int MAX_ENTRIES = 50;
+    private final int MAX_ENTRIES = 25; // 50
     // private final NetworkTableEntry m_isTargetValid, m_led_entry;
 
 
