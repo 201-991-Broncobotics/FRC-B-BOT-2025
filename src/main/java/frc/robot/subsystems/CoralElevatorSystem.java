@@ -48,7 +48,8 @@ public class CoralElevatorSystem extends SubsystemBase {
     //private DoubleSupplier testEle;
 
 
-    public CoralElevatorSystem() {
+    public CoralElevatorSystem(DiffyCoralClaw coralClawReference) {
+        this.coralClawReference = coralClawReference;
         elevator = new TalonFX(MotorConstants.elevatorID);
         elevator.setNeutralMode(NeutralModeValue.Brake);
         TargetElevatorHeight = 0.0;
@@ -77,8 +78,8 @@ public class CoralElevatorSystem extends SubsystemBase {
         if (!GoToPosition) {
 
             if (coralClawReference.combinedElevatorCoralPitchControl(ManualControlAxis.getAsDouble(), 
-                    (TargetElevatorHeight == CoralSystemSettings.minHeight) ? CoralSystemPresets.GroundIntake.clawPitch : Math.toRadians(20), // min angle is 20 unless elevator is at the bottom
-                    (TargetElevatorHeight == CoralSystemSettings.maxHeight) ? CoralClawSettings.maxPitch : Math.toRadians(70) // max angle is 70 unless elevator is at the top
+                    (TargetElevatorHeight == CoralSystemSettings.minHeight) ? CoralSystemPresets.GroundIntake.clawPitch : Math.toRadians(20), // min angle is 0 unless elevator is at the bottom
+                    (TargetElevatorHeight == CoralSystemSettings.maxHeight) ? CoralClawSettings.maxPitch : Math.toRadians(75) // max angle is 75 unless elevator is at the top
             )) { // ^ this returns true if the diffy arm is already at its min or max angle and the elevator can move instead
                 if (Math.abs(ManualControlAxis.getAsDouble()) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
                 if (!overrideManualControl) TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;

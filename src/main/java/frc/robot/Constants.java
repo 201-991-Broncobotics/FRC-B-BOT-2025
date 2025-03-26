@@ -20,6 +20,7 @@ public final class Constants {
         public static final int rightDiffyID = 14;
         public static final int leftDiffyID = 13;
         public static final int coralRollerID = 3;
+        public static final int climbingMotorID = 11;
     }
     public static class OperatorConstants {
         public static final int kDriverControllerPort = 0;

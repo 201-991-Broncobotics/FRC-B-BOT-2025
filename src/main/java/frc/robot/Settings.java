@@ -41,14 +41,14 @@ public class Settings {
         public static double startRoll = Math.toRadians(0);
         public static double startPitch = Math.toRadians(0);
 
-        public static PIDController LeftDiffyPID = new PIDController(0.08, 0, 0); 
-        public static PIDController RightDiffyPID = new PIDController(0.08, 0, 0); 
+        public static PIDController LeftDiffyPID = new PIDController(0.09, 0, 0); 
+        public static PIDController RightDiffyPID = new PIDController(0.09, 0, 0); 
 
         // gravity power
         public static double gravityPower = 0.0;
 
         //Limits
-        public static double maxPitch = Math.toRadians(90.0); // radians
+        public static double maxPitch = Math.toRadians(95.0); // radians
         public static double minPitch = Math.toRadians(-30.0);
         public static double rollRange = Math.toRadians(180.0);
 
@@ -61,21 +61,24 @@ public class Settings {
         public static double testingPitch = 0;
         public static double testingRoll = 0;
 
-        public static double manualPitchSpeed = 45;
+        public static double manualPitchSpeed = 20;
         public static double manualRollSpeed = 45;
 
         public static double rollAngleExaggeration = 1.05; // slightly increases roll inputs so that they finish moving all the way
-        public static int RollerCurrentLimit = 15;
+        public static int RollerCurrentLimit = 20;
 
         public static int DiffyMotorCurrentLimit = 100;
     }
 
 
     public static class ClimbingSettings{
-        public static double climbingSpeed = 1;
+        public static double climbingSpeed = 0.05;
 
         public static double maxEncoderPosition = 85;
         public static double minEncoderPosition = 0;
+
+        public static boolean useCurrentLimit = true;
+        public static int currentLimit = 30;
     }
 
     public static class AlgaeArmSettings {
@@ -94,11 +97,11 @@ public class Settings {
         public static PIDController AlgaePivotPID = new PIDController(0.17, 0, 0); // 0, 0, 0
         
         public static double IntakePower = 0.7;
-        public static double HoldPower = 0.15;
-        public static double OuttakePower = -0.7;
+        public static double HoldPower = 0.25;
+        public static double OuttakePower = -0.8;
 
         public static int algaeRollerHasIntakedCurrent = 40;
-        public static int algaeRollerStallCurrent = 25;
+        public static int algaeRollerStallCurrent = 30;
 
         public static double manualControlSpeed = Math.toRadians(90); // max speed in radians per second 
         
