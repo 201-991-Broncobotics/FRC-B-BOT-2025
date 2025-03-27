@@ -81,6 +81,13 @@ public class ClimbingSystem extends SubsystemBase {
 
         frameTime = runTime.time();
         runTime.reset();
+
+        SmartDashboard.putNumber("Tune Climbing kP", ClimbingSettings.climbPID.getP());
+        SmartDashboard.putNumber("Tune Climbing maxPosition", ClimbingSettings.maxEncoderPosition);
+        SmartDashboard.putNumber("Tune Climbing minPosition", ClimbingSettings.minEncoderPosition);
+        SmartDashboard.putNumber("Tune Climbing speed", ClimbingSettings.climbingSpeed);
+        SmartDashboard.putNumber("Tune Climbing current limit", ClimbingSettings.currentLimit);
+        SmartDashboard.putBoolean("Tune Climbing use current limit", ClimbingSettings.useCurrentLimit);
     }
 
     public void update() {
@@ -103,6 +110,15 @@ public class ClimbingSystem extends SubsystemBase {
         SmartDashboard.putNumber("Climb Motor Current", climbingMotor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Climb Encoder Raw", climbingMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Climb Encoder", Math.toDegrees(climbEncoder.getAsDouble()));
+
+
+        ClimbingSettings.climbPID.setP(SmartDashboard.getNumber("Tune Climbing kP", ClimbingSettings.climbPID.getP()));
+        ClimbingSettings.maxEncoderPosition = SmartDashboard.getNumber("Tune Climbing maxPosition", ClimbingSettings.maxEncoderPosition);
+        ClimbingSettings.minEncoderPosition = SmartDashboard.getNumber("Tune Climbing minPosition", ClimbingSettings.minEncoderPosition);
+        ClimbingSettings.climbingSpeed = SmartDashboard.getNumber("Tune Climbing speed", ClimbingSettings.climbingSpeed);
+        ClimbingSettings.currentLimit = (int) SmartDashboard.getNumber("Tune Climbing current limit", ClimbingSettings.currentLimit);
+        ClimbingSettings.useCurrentLimit = SmartDashboard.getBoolean("Tune Climbing use current limit", ClimbingSettings.useCurrentLimit);
+
     }
 
     @Override
