@@ -196,7 +196,7 @@ public class DrivingProfiles extends SubsystemBase {
 
         Vector2d autoDrivingDirection = new Vector2d()
             .withMag(AutoTargetingSettings.AutoDrivingPower * (AutoTargetingSettings.targetPercentageOfVisionBlocked - LimelightHelpers.getTA("")))
-            .withAngle(gyroData.yaw + LimelightHelpers.getTX(""));
+            .withAngle(gyroData.yaw + LimelightHelpers.getTX("")); // in degrees
 
         double throttle = 0;
         if (preferController) {

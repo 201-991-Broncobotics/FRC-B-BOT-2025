@@ -43,6 +43,12 @@ public class CoralElevatorSystem extends SubsystemBase {
 
     private DiffyCoralClaw coralClawReference;
 
+    private ElapsedTime stageChangeButtonTimer;
+
+    private boolean pendingStageChange = false;
+
+    private boolean lastWasStagingUp = false;
+
 
     //temp
     //private DoubleSupplier testEle;
@@ -62,6 +68,8 @@ public class CoralElevatorSystem extends SubsystemBase {
         SmartDashboard.putNumber("Ele kGE", CoralSystemSettings.kGA);
         SmartDashboard.putNumber("Ele kVE", CoralSystemSettings.kVA);
         SmartDashboard.putNumber("TargetAngle", 0);
+
+        stageChangeButtonTimer = new ElapsedTime(Resolution.MILLISECONDS);
 
         frameTime = runTime.time();
         runTime.reset();
@@ -168,16 +176,34 @@ public class CoralElevatorSystem extends SubsystemBase {
     }
 
     public void upOneStage() {
+        stageChangeButtonTimer.reset();
+
+        pendingStageChange = true;
+        lastWasStagingUp = true;
+
         ElevatorStage += 1;
         if (ElevatorStage > numberOfStages) ElevatorStage = numberOfStages;
 
-        overrideManualControl = true;
-        if (GoToPosition) lastManualControl = ManualControlAxis.getAsDouble();
     }
 
     public void downOneStage() {
+        stageChangeButtonTimer.reset();
+
+        pendingStageChange = true;
+        lastWasStagingUp = false;
+
         ElevatorStage -= 1;
         if (ElevatorStage < 0) ElevatorStage = 0;
+
+        
+    }
+
+    public void stopChangingStage() {
+        
+        if (stageChangeButtonTimer.time() > CoralSystemSettings.delayBeforeStaging) {
+            if (lastWasStagingUp) ElevatorStage = numberOfStages;
+            else ElevatorStage = 0;
+        }
 
         overrideManualControl = true;
         if (GoToPosition) lastManualControl = ManualControlAxis.getAsDouble();

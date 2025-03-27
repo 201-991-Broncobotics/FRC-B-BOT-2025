@@ -35,6 +35,9 @@ public class Settings {
 
         public static double manualControlSpeed = 25; // max speed in inches per second 
 
+
+        public static double delayBeforeStaging = 750; // milliseconds that after holding the change stage button, will cause it to skip to max/min stage
+
     }
 
     public static class CoralClawSettings {
@@ -89,7 +92,7 @@ public class Settings {
         // Presets
         public static double PresetPickupAngle = Math.toRadians(25);
         public static double PresetStoredAngle = Math.toRadians(90);
-        public static double PresetOuttakeAngle = Math.toRadians(90);
+        public static double PresetOuttakeAngle = Math.toRadians(80);
 
         // Limits
         public static double MaxPivotAngle = Math.toRadians(120);

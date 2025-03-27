@@ -281,6 +281,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         gyroData.accelY = getPigeon2().getAccelerationY().getValueAsDouble();
         gyroData.accelZ = getPigeon2().getAccelerationZ().getValueAsDouble();
 
+        // NOTE THESE ARE IN DEGREES
         gyroData.pitch = getPigeon2().getPitch().getValueAsDouble();
         gyroData.roll = getPigeon2().getRoll().getValueAsDouble();
         gyroData.yaw = getPigeon2().getYaw().getValueAsDouble();
@@ -293,7 +294,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         // apply limelight data if it sees any apriltags
         if (LimelightHelpers.getTV("")) {
             
-            LimelightHelpers.SetRobotOrientation("", gyroData.yaw, 0, gyroData.pitch, 0.0, gyroData.roll, 0.0);
+            LimelightHelpers.SetRobotOrientation("", gyroData.yaw, 0, gyroData.pitch, 0.0, gyroData.roll, 0.0); // don't technically need pitch or roll here 
 
             LimelightHelpers.PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
 
@@ -359,7 +360,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         public static double accelX = 0;
         public static double accelY = 0;
         public static double accelZ = 0;
-        public static double pitch = 0;
+        public static double pitch = 0; // NOTE THESE ARE IN DEGREES
         public static double roll = 0;
         public static double yaw = 0;
         public static double angVelX = 0;
