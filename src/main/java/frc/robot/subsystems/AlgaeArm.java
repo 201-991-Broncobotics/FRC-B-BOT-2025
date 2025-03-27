@@ -7,18 +7,15 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import frc.robot.Constants.MotorConstants;
 import frc.robot.Settings.AlgaeArmSettings;
-import frc.robot.Settings.CoralClawSettings;
+import frc.robot.subsystems.CommandSwerveDrivetrain.gyroData;
 import frc.robot.utility.ElapsedTime;
 import frc.robot.utility.ElapsedTime.Resolution;
 import frc.robot.utility.Functions;
@@ -94,7 +91,8 @@ public class AlgaeArm extends SubsystemBase {
 
         TargetPivotAngle = Functions.minMaxValue(AlgaeArmSettings.MinPivotAngle, AlgaeArmSettings.MaxPivotAngle, TargetPivotAngle);
 
-        PivotMotorPower = AlgaeArmSettings.AlgaePivotPID.calculate(algaePivotEncoder.getAsDouble(), TargetPivotAngle);
+        double currentPivotAngle = algaePivotEncoder.getAsDouble();
+        PivotMotorPower = AlgaeArmSettings.AlgaePivotPID.calculate(algaePivotEncoder.getAsDouble(), TargetPivotAngle) + AlgaeArmSettings.gravityPower * Math.sin(currentPivotAngle) + (gyroData.accelX * AlgaeArmSettings.gravityPower * Math.cos(currentPivotAngle) * (AlgaeArmSettings.useDriveCompensation? 1.0:0.0));
 
         if (algaeRoller.getOutputCurrent() > AlgaeArmSettings.algaeRollerHasIntakedCurrent && AlgaeRollerPower == AlgaeArmSettings.IntakePower) {
             AlgaeRollerPower = AlgaeArmSettings.HoldPower;

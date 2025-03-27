@@ -3,6 +3,9 @@ package frc.robot.subsystems;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,6 +13,7 @@ import frc.robot.Settings;
 import frc.robot.Settings.AutoTargetingSettings;
 import frc.robot.subsystems.CommandSwerveDrivetrain.gyroData;
 import frc.robot.utility.Functions;
+import frc.robot.utility.LimelightHelpers;
 import frc.robot.utility.Vector2d;
 
 /**
@@ -41,15 +45,16 @@ public class DrivingProfiles extends SubsystemBase {
 
     private double autoForwardOutput = 0, autoStrafeOutput = 0, autoRotationOutput = 0;
 
+    private boolean targetingLeftReef = false;
     private boolean lastSawObjectOnLeft = false;
 
-    private Joystick joystick;
+    private Pose2d botPose = new Pose2d();;
 
-    private Vision camera;
+    private int limelightPipelineIndex = 0;
+    private int maxPipelineIndex = 9;
 
 
-    public DrivingProfiles(Vision vision, boolean PreferController) {
-        this.camera = vision;
+    public DrivingProfiles(boolean PreferController) {
         this.preferController = PreferController;
 
         if (Settings.tuningTelemetryEnabled) {
@@ -65,9 +70,8 @@ public class DrivingProfiles extends SubsystemBase {
 
     }
 
-    public DrivingProfiles(Vision vision) {
-        new DrivingProfiles(vision, preferController);
-        this.camera = vision;
+    public DrivingProfiles() {
+        new DrivingProfiles(preferController);
     }
 
 
@@ -170,24 +174,29 @@ public class DrivingProfiles extends SubsystemBase {
 
 
     private void updateAutoAiming() {
-        autoRotationOutput = Functions.minMaxValue(-1, 1, AutoTargetingSettings.AutoAimPID.calculate(camera.getTX(), 0.0));
+        
 
-        if (AutoTargetingSettings.AutoAimingEnabled) {
-            if (camera.isTargetValid()) {
-                rotationOutput = autoRotationOutput;
-            } else {
-                if (lastSawObjectOnLeft) rotationOutput = AutoTargetingSettings.searchingSpeed;
-                else rotationOutput = -AutoTargetingSettings.searchingSpeed;
+        if (LimelightHelpers.getTV("")) {
+            double offsetTX = 0;
+            if (targetingLeftReef) {
+                offsetTX = AutoTargetingSettings.leftReefCrosshairOffset;
             }
+            autoRotationOutput = Functions.minMaxValue(-1, 1, AutoTargetingSettings.AutoAimPID.calculate(LimelightHelpers.getTX("") + offsetTX, 0.0));
             
+            if (AutoTargetingSettings.AutoAimingEnabled) rotationOutput = autoRotationOutput;
+
+        } else if (AutoTargetingSettings.AutoAimingEnabled) {
+            if (lastSawObjectOnLeft) rotationOutput = AutoTargetingSettings.searchingSpeed;
+            else rotationOutput = -AutoTargetingSettings.searchingSpeed;
         }
+
     }
 
     private void updateAutoDriving() {
 
         Vector2d autoDrivingDirection = new Vector2d()
-            .withMag(AutoTargetingSettings.AutoDrivingPower * (AutoTargetingSettings.targetPercentageOfVisionBlocked - camera.getTA()))
-            .withAngle(gyroData.yaw + camera.getTX());
+            .withMag(AutoTargetingSettings.AutoDrivingPower * (AutoTargetingSettings.targetPercentageOfVisionBlocked - LimelightHelpers.getTA("")))
+            .withAngle(gyroData.yaw + LimelightHelpers.getTX("")); // in degrees
 
         double throttle = 0;
         if (preferController) {
@@ -202,7 +211,7 @@ public class DrivingProfiles extends SubsystemBase {
         autoForwardOutput = autoDrivingDirection.y * throttle;
         autoStrafeOutput = autoDrivingDirection.x * throttle;
 
-        if (AutoTargetingSettings.AutoDrivingEnabled && camera.isTargetValid()) {
+        if (AutoTargetingSettings.AutoDrivingEnabled && LimelightHelpers.getTV("")) {
             forwardOutput += autoForwardOutput;
             strafeOutput += autoStrafeOutput;
         }
@@ -229,30 +238,38 @@ public class DrivingProfiles extends SubsystemBase {
     public void enableAutoDriving() { autoDriving = true; }
     public void disableAutoDriving() { autoDriving = false; }
 
-
-
-    public void giveJoystickForTelemetry(Joystick joystick) {
-        this.joystick = joystick;
-    }
-
+    public void setPipelineIndex(int index) { limelightPipelineIndex = index; }
+    public int getPipelineIndex() { return limelightPipelineIndex; }
+    public void increasePipelineIndex() {
+        limelightPipelineIndex += 1; 
+        if (limelightPipelineIndex > maxPipelineIndex) limelightPipelineIndex = 0;
+    } 
+    public void decreasePipelineIndex() {
+        limelightPipelineIndex -= 1; 
+        if (limelightPipelineIndex < 0) limelightPipelineIndex = maxPipelineIndex;
+    } 
 
     @Override
     public void periodic() {
 
-        camera.updateVision();
+        LimelightHelpers.setPipelineIndex("", limelightPipelineIndex);
 
-        if (camera.getTX() > 0) lastSawObjectOnLeft = false;
-        else if (camera.getTX() < 0) lastSawObjectOnLeft = true;
+        if (LimelightHelpers.getTX("") > 0) lastSawObjectOnLeft = false;
+        else if (LimelightHelpers.getTX("") < 0) lastSawObjectOnLeft = true;
 
-        SmartDashboard.putNumber("Vision TX", camera.getTX());
-        SmartDashboard.putNumber("Vision TA", camera.getTA());
-        SmartDashboard.putBoolean("Vision valid Target", camera.isTargetValid());
+        SmartDashboard.putNumber("Limelight pipeline", LimelightHelpers.getCurrentPipelineIndex(""));
+        SmartDashboard.putNumber("Limelight TX", LimelightHelpers.getTX(""));
+        SmartDashboard.putNumber("Limelight TA", LimelightHelpers.getTA(""));
+        SmartDashboard.putBoolean("Limelight valid Target", LimelightHelpers.getTV(""));
+        botPose = LimelightHelpers.getBotPose2d("");
+        SmartDashboard.putString("Limelight getBotPose2d", botPose.toString());
+        SmartDashboard.putString("Limelight drivetrain estimated pose", gyroData.robotPose.toString());
 
         SmartDashboard.putNumber("AUTO Targeting forward", autoForwardOutput);
         SmartDashboard.putNumber("AUTO Targeting strafe", autoStrafeOutput);
         SmartDashboard.putNumber("AUTO Targeting rotation", autoRotationOutput);
 
-        SmartDashboard.putBoolean("Vision last saw object on left", lastSawObjectOnLeft);
+        SmartDashboard.putBoolean("Limelight last saw object on left", lastSawObjectOnLeft);
 
         //update settings
         if (Settings.tuningTelemetryEnabled) {

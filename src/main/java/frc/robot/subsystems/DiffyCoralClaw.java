@@ -12,6 +12,7 @@ import frc.robot.Constants.MotorConstants;
 import frc.robot.Settings.CoralClawSettings;
 import frc.robot.Settings.CoralSystemPresets;
 import frc.robot.Settings.CoralSystemSettings;
+import frc.robot.subsystems.CommandSwerveDrivetrain.gyroData;
 import frc.robot.utility.CoralSystemPreset;
 import frc.robot.utility.ElapsedTime;
 import frc.robot.utility.ElapsedTime.Resolution;
@@ -180,8 +181,8 @@ public class DiffyCoralClaw extends SubsystemBase {
         //LeftDiffyTarget = Functions.minMaxValue(-125, 110, LeftDiffyTarget);
 
         if (enabled) {
-            rmotor.set(-1 * (CoralClawSettings.LeftDiffyPID.calculate(lencoder.getAsDouble(), LeftDiffyTarget) + CoralClawSettings.gravityPower * Math.sin(getCurrentPitch())));
-            lmotor.set((CoralClawSettings.RightDiffyPID.calculate(rencoder.getAsDouble(), RightDiffyTarget) + CoralClawSettings.gravityPower * Math.sin(getCurrentPitch())));
+            rmotor.set(-1 * (CoralClawSettings.LeftDiffyPID.calculate(lencoder.getAsDouble(), LeftDiffyTarget) + CoralClawSettings.gravityPower * Math.sin(getCurrentPitch()) - (gyroData.accelX * CoralClawSettings.gravityPower * Math.cos(getCurrentPitch()) * (CoralClawSettings.useDriveCompensation? 1.0:0.0))));
+            lmotor.set((CoralClawSettings.RightDiffyPID.calculate(rencoder.getAsDouble(), RightDiffyTarget) + CoralClawSettings.gravityPower * Math.sin(getCurrentPitch()) - (gyroData.accelX * CoralClawSettings.gravityPower * Math.cos(getCurrentPitch()) * (CoralClawSettings.useDriveCompensation? 1.0:0.0))));
         } else {
             lmotor.set(0);
             rmotor.set(0);

@@ -35,6 +35,9 @@ public class Settings {
 
         public static double manualControlSpeed = 25; // max speed in inches per second 
 
+
+        public static double delayBeforeStaging = 750; // milliseconds that after holding the change stage button, will cause it to skip to max/min stage
+
     }
 
     public static class CoralClawSettings {
@@ -46,6 +49,7 @@ public class Settings {
 
         // gravity power
         public static double gravityPower = 0.0;
+        public static boolean useDriveCompensation = false; // helps compensate for accelerating
 
         //Limits
         public static double maxPitch = Math.toRadians(95.0); // radians
@@ -88,7 +92,7 @@ public class Settings {
         // Presets
         public static double PresetPickupAngle = Math.toRadians(25);
         public static double PresetStoredAngle = Math.toRadians(90);
-        public static double PresetOuttakeAngle = Math.toRadians(90);
+        public static double PresetOuttakeAngle = Math.toRadians(80);
 
         // Limits
         public static double MaxPivotAngle = Math.toRadians(120);
@@ -105,6 +109,10 @@ public class Settings {
 
         public static double manualControlSpeed = Math.toRadians(90); // max speed in radians per second 
         
+        // gravity power
+        public static double gravityPower = 0.0;
+        public static boolean useDriveCompensation = false; // helps compensate for accelerating
+
     }
 
     public static class AutoTargetingSettings {
@@ -117,6 +125,8 @@ public class Settings {
         public static double targetPercentageOfVisionBlocked = 0.2;
 
         public static double searchingSpeed = 0.5;
+
+        public static double leftReefCrosshairOffset = 0;
 
     }
 
