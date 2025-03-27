@@ -79,6 +79,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("raiseElevator",new InstantCommand(coralElevatorSystem::upOneStage));
         NamedCommands.registerCommand("raiseClaw",new InstantCommand(coralClaw::goToElevatorPreset));
         NamedCommands.registerCommand("outtakeClaw",new InstantCommand(coralClaw::outtakeRoller));
+        NamedCommands.registerCommand("outtakeClaw",new InstantCommand(coralClaw::outtakeRoller));
+        NamedCommands.registerCommand("stopClaw",new InstantCommand(coralClaw::stopRoller));
         
         
         drivetrain.configureAutoBuilder();
