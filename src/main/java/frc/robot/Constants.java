@@ -16,7 +16,7 @@ public final class Constants {
     public static class MotorConstants{
         public static final int algaePivotID = 12;
         public static final int algaeRollerID = 23; 
-        public static final int elevatorID = 0;
+        public static final int elevatorID = 15;
         public static final int rightDiffyID = 14;
         public static final int leftDiffyID = 13;
         public static final int coralRollerID = 3;

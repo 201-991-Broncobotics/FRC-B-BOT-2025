@@ -20,6 +20,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MotorConstants;
 import frc.robot.Settings.ClimbingSettings;
+import frc.robot.utility.ElapsedTime;
+import frc.robot.utility.ElapsedTime.Resolution;
+import frc.robot.utility.ThroughBoreEncoder;
 
 public class ClimbingSystem extends SubsystemBase {
 
@@ -33,10 +36,20 @@ public class ClimbingSystem extends SubsystemBase {
 
     private DoubleSupplier climbEncoder;
 
+    private ThroughBoreEncoder cThroughBore;
+
+    private double climbingTargetPosition = 0;
+
+    private ElapsedTime runTime;
+    private double frameTime = 0;
+
     //private SparkMaxConfig climbMotorConfig;
 
 
     public ClimbingSystem() {
+
+        runTime = new ElapsedTime(Resolution.SECONDS);
+
         //climbingMotor = new SparkMax(MotorConstants.climbingMotorID, MotorType.kBrushless);
         //climbMotorConfig = new SparkMaxConfig();
 
@@ -60,10 +73,22 @@ public class ClimbingSystem extends SubsystemBase {
         climbingSpeed = ClimbingSettings.climbingSpeed;
         ClimbingPower = 0;
 
-        climbEncoder = () -> climbingMotor.getPosition().getValueAsDouble() * 1.0/9.0 * 1.0/5.0 * 1.0/5.0 * 2*Math.PI;
+        cThroughBore = new ThroughBoreEncoder(6, 7, 8);
+       
+        cThroughBore.setAbsoluteZero(0);
+
+        climbEncoder = () -> -cThroughBore.getAbsoluteAngleNorm(); // climbingMotor.getPosition().getValueAsDouble() * 1.0/9.0 * 1.0/5.0 * 1.0/5.0 * 2*Math.PI;
+
+        frameTime = runTime.time();
+        runTime.reset();
     }
 
     public void update() {
+
+        climbingTargetPosition += climbingSpeed * frameTime;
+
+        ClimbingPower = ClimbingSettings.climbPID.calculate(climbEncoder.getAsDouble(), climbingTargetPosition);
+
         if (climbEncoder.getAsDouble() > ClimbingSettings.maxEncoderPosition && ClimbingPower > 0) ClimbingPower = 0;
         if (climbEncoder.getAsDouble() < ClimbingSettings.minEncoderPosition && ClimbingPower < 0) ClimbingPower = 0;
         climbingMotor.set(ClimbingPower);
@@ -72,6 +97,9 @@ public class ClimbingSystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        frameTime = runTime.time();
+        runTime.reset();
+
         SmartDashboard.putNumber("Climb Motor Current", climbingMotor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber("Climb Encoder Raw", climbingMotor.getPosition().getValueAsDouble());
         SmartDashboard.putNumber("Climb Encoder", Math.toDegrees(climbEncoder.getAsDouble()));

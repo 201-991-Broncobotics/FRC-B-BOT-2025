@@ -12,7 +12,7 @@ import frc.robot.utility.CoralSystemPreset;
  */
 public class Settings {
 
-    public static boolean useNormalControls = true;
+    public static boolean useNormalControls = true; // false is for single player/Aidan controls
     public static boolean tuningTelemetryEnabled = true;
 
     public static class CoralSystemSettings {
@@ -52,7 +52,7 @@ public class Settings {
         public static boolean useDriveCompensation = false; // helps compensate for accelerating
 
         //Limits
-        public static double maxPitch = Math.toRadians(95.0); // radians
+        public static double maxPitch = Math.toRadians(100.0); // radians
         public static double minPitch = Math.toRadians(-30.0);
         public static double rollRange = Math.toRadians(180.0);
 
@@ -76,18 +76,20 @@ public class Settings {
 
 
     public static class ClimbingSettings{
-        public static double climbingSpeed = 0.05;
+        public static double climbingSpeed = Math.toRadians(10); // per second
 
-        public static double maxEncoderPosition = 85;
-        public static double minEncoderPosition = 0;
+        public static PIDController climbPID = new PIDController(0.0, 0, 0); 
+
+        public static double maxEncoderPosition = Math.toRadians(110);
+        public static double minEncoderPosition = Math.toRadians(0);
 
         public static boolean useCurrentLimit = true;
-        public static int currentLimit = 30;
+        public static int currentLimit = 20;
     }
 
     public static class AlgaeArmSettings {
 
-        public static double AlgaePivotStartAngle = Math.toRadians(150); 
+        public static double AlgaePivotStartAngle = Math.toRadians(135); // 150 before elevator support
 
         // Presets
         public static double PresetPickupAngle = Math.toRadians(25);
@@ -138,7 +140,7 @@ public class Settings {
         public static CoralSystemPreset L4Reef = new CoralSystemPreset(50, 85, 90);
         public static CoralSystemPreset L3Reef = new CoralSystemPreset(35, 55, 90);
         public static CoralSystemPreset L2Reef = new CoralSystemPreset(25, 55, 90);
-        public static CoralSystemPreset L1Reef = new CoralSystemPreset(0, 80, 0);
+        public static CoralSystemPreset L1Reef = new CoralSystemPreset(0, 80, 90);
         public static CoralSystemPreset Stowed = new CoralSystemPreset(0, 75, 0);
 
     }

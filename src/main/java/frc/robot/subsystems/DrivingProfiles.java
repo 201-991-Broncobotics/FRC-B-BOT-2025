@@ -262,8 +262,8 @@ public class DrivingProfiles extends SubsystemBase {
         SmartDashboard.putNumber("Limelight TA", LimelightHelpers.getTA(""));
         SmartDashboard.putBoolean("Limelight valid Target", LimelightHelpers.getTV(""));
         botPose = LimelightHelpers.getBotPose2d("");
-        SmartDashboard.putString("Limelight getBotPose2d", botPose.toString());
-        SmartDashboard.putString("Limelight drivetrain estimated pose", gyroData.robotPose.toString());
+        if (botPose != null) SmartDashboard.putString("Limelight getBotPose2d", botPose.toString());
+        if (gyroData.robotPose != null) SmartDashboard.putString("Limelight drivetrain estimated pose", gyroData.robotPose.toString());
 
         SmartDashboard.putNumber("AUTO Targeting forward", autoForwardOutput);
         SmartDashboard.putNumber("AUTO Targeting strafe", autoStrafeOutput);

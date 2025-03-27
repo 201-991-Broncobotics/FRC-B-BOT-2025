@@ -11,6 +11,7 @@ import java.util.function.DoubleSupplier;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -75,8 +76,10 @@ public class RobotContainer {
 
     public RobotContainer() {
          //Register Auto Commands
-        /*NamedCommands.registerCommand("startArm",new InstantCommand(algaeArmSystem::enableArm));
-        */
+        NamedCommands.registerCommand("raiseElevator",new InstantCommand(coralElevatorSystem::upOneStage));
+        NamedCommands.registerCommand("raiseClaw",new InstantCommand(coralClaw::goToElevatorPreset));
+        NamedCommands.registerCommand("outtakeClaw",new InstantCommand(coralClaw::outtakeRoller));
+        
         
         drivetrain.configureAutoBuilder();
 
@@ -156,6 +159,14 @@ public class RobotContainer {
             // reset the field-centric heading on left bumper press
             driverJoystick.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
             new JoystickButton(driverFlightHotasOne, 5).onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+
+            driverJoystick.povUp().onTrue(new InstantCommand(climbingSystem::StartClimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
+            driverJoystick.povDown().onTrue(new InstantCommand(climbingSystem::StartUnclimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
+
+            new JoystickButton(driverFlightHotasOne, 2).onTrue(new InstantCommand(climbingSystem::StartClimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
+            new JoystickButton(driverFlightHotasOne, 13).onTrue(new InstantCommand(climbingSystem::StartClimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
+            new JoystickButton(driverFlightHotasOne, 14).onTrue(new InstantCommand(climbingSystem::StartUnclimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
 
             // Climbing
 

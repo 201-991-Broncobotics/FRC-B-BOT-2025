@@ -49,6 +49,8 @@ public class CoralElevatorSystem extends SubsystemBase {
 
     private boolean lastWasStagingUp = false;
 
+    private boolean enabled = true;
+
 
     //temp
     //private DoubleSupplier testEle;
@@ -124,11 +126,16 @@ public class CoralElevatorSystem extends SubsystemBase {
         ElevatorError=TargetElevatorHeight-CurrentElevatorHeight;
         
         //Move motor
-        if(Math.abs(ElevatorError)<CoralSystemSettings.elevatorTolerance) {
-            elevator.setVoltage(-elevatorFeedForward.calculate(0));
-        } else{
-            elevator.setVoltage(-elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
+        if (enabled) {
+            if(Math.abs(ElevatorError)<CoralSystemSettings.elevatorTolerance) {
+                elevator.setVoltage(-elevatorFeedForward.calculate(0));
+            } else{
+                elevator.setVoltage(-elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
+            }
+        } else {
+            elevator.setVoltage(0);
         }
+        
         
     }
 
@@ -185,6 +192,7 @@ public class CoralElevatorSystem extends SubsystemBase {
         if (ElevatorStage > numberOfStages) ElevatorStage = numberOfStages;
 
     }
+
 
     public void downOneStage() {
         stageChangeButtonTimer.reset();

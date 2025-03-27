@@ -94,9 +94,9 @@ public class AlgaeArm extends SubsystemBase {
         double currentPivotAngle = algaePivotEncoder.getAsDouble();
         PivotMotorPower = AlgaeArmSettings.AlgaePivotPID.calculate(algaePivotEncoder.getAsDouble(), TargetPivotAngle) + AlgaeArmSettings.gravityPower * Math.sin(currentPivotAngle) + (gyroData.accelX * AlgaeArmSettings.gravityPower * Math.cos(currentPivotAngle) * (AlgaeArmSettings.useDriveCompensation? 1.0:0.0));
 
-        if (algaeRoller.getOutputCurrent() > AlgaeArmSettings.algaeRollerHasIntakedCurrent && AlgaeRollerPower == AlgaeArmSettings.IntakePower) {
-            AlgaeRollerPower = AlgaeArmSettings.HoldPower;
-        }
+        //if (algaeRoller.getOutputCurrent() > AlgaeArmSettings.algaeRollerHasIntakedCurrent && AlgaeRollerPower == AlgaeArmSettings.IntakePower) {
+        //    AlgaeRollerPower = AlgaeArmSettings.HoldPower;
+        //}
 
         if (enabled) {
             pivotMotor.set(PivotMotorPower);
