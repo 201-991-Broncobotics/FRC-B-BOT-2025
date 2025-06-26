@@ -109,10 +109,12 @@ public class DiffyCoralClaw extends SubsystemBase {
         lThroughBore = new ThroughBoreEncoder(0, 1, 2); // Digital ports on the RobotRio
         rThroughBore = new ThroughBoreEncoder(3, 4, 5);
 
+        
+        lThroughBore.setAbsoluteZero(Math.toRadians(150)); //  + 119.470000 - 360 - 76 - 80 // 505 - 3
+        rThroughBore.setAbsoluteZero(Math.toRadians(220)); //  + - 122.700000 - 114.600000 // -407 + 95
+
         lThroughBore.resetRelative();
-        lThroughBore.setAbsoluteZero(Math.toRadians(240.528966));
         rThroughBore.resetRelative();
-        rThroughBore.setAbsoluteZero(Math.toRadians(237.302106));
 
         double lAbsoluteAngle = lThroughBore.getAbsoluteAngleNorm();
         double rAbsoluteAngle = rThroughBore.getAbsoluteAngleNorm();
@@ -233,11 +235,11 @@ public class DiffyCoralClaw extends SubsystemBase {
         SmartDashboard.putNumber("CoralClaw Left Encoder Position", Math.toDegrees(lencoder.getAsDouble()));
 
 
-        SmartDashboard.putNumber("Right ThroughBore Absolute Angle", Math.toDegrees(rThroughBore.getAbsoluteAngleNorm()));
-        SmartDashboard.putNumber("Left ThroughBore Absolute Angle", Math.toDegrees(lThroughBore.getAbsoluteAngleNorm()));
+        SmartDashboard.putNumber("Right ThroughBore Absolute Zero Angle", -Math.toDegrees(rThroughBore.getAbsoluteAngleWithoutZero()));
+        SmartDashboard.putNumber("Left ThroughBore Absolute Zero Angle", Math.toDegrees(lThroughBore.getAbsoluteAngleWithoutZero()));
 
-        SmartDashboard.putNumber("Left ThroughBore Relative Raw", Math.toDegrees(lThroughBore.getRelativeRaw()));
-        SmartDashboard.putNumber("Left ThroughBore Absolute Raw", Math.toDegrees(lThroughBore.getAbsoluteRaw()));
+        SmartDashboard.putNumber("Right ThroughBore Absolute Raw", (rThroughBore.getAbsoluteRaw() * 360));
+        SmartDashboard.putNumber("Left ThroughBore Absolute Raw", (lThroughBore.getAbsoluteRaw() * 360));
 
         SmartDashboard.putBoolean("Right Encoder Connected", rThroughBore.encoderConnected());
         SmartDashboard.putBoolean("Left Encoder Connected", lThroughBore.encoderConnected());
@@ -317,9 +319,11 @@ public class DiffyCoralClaw extends SubsystemBase {
 
 
     public void switchRotation() {
+
+
         if (TargetRoll > Math.toRadians(45)) TargetRoll = Math.toRadians(0);
-        else if (TargetRoll > Math.toRadians(-45)) TargetRoll = Math.toRadians(-90);
-        else TargetRoll = Math.toRadians(90);
+        else if (TargetRoll > Math.toRadians(-45)) TargetRoll = Math.toRadians(-89);
+        else TargetRoll = Math.toRadians(89);
         
     }
 

@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.MotorConstants;
 import frc.robot.Settings.ClimbingSettings;
 import frc.robot.utility.ElapsedTime;
+import frc.robot.utility.Functions;
 import frc.robot.utility.ElapsedTime.Resolution;
 import frc.robot.utility.ThroughBoreEncoder;
 
@@ -67,7 +68,7 @@ public class ClimbingSystem extends SubsystemBase {
 
         climbingMotorConfig = climbingMotor.getConfigurator().apply(currentLimitConfigs);
 
-        climbingMotor.setNeutralMode(NeutralModeValue.Coast);
+        climbingMotor.setNeutralMode(NeutralModeValue.Brake);
         
 
         climbingSpeed = ClimbingSettings.climbingSpeed;
@@ -92,13 +93,15 @@ public class ClimbingSystem extends SubsystemBase {
 
     public void update() {
 
-        climbingTargetPosition += climbingSpeed * frameTime;
+        climbingTargetPosition += ClimbingPower * frameTime;
 
-        ClimbingPower = ClimbingSettings.climbPID.calculate(climbEncoder.getAsDouble(), climbingTargetPosition);
+        climbingTargetPosition = Functions.minMaxValue(ClimbingSettings.minEncoderPosition, ClimbingSettings.maxEncoderPosition, climbingTargetPosition);
 
-        if (climbEncoder.getAsDouble() > ClimbingSettings.maxEncoderPosition && ClimbingPower > 0) ClimbingPower = 0;
-        if (climbEncoder.getAsDouble() < ClimbingSettings.minEncoderPosition && ClimbingPower < 0) ClimbingPower = 0;
-        climbingMotor.set(ClimbingPower);
+        double theClimbingPower = ClimbingSettings.climbPID.calculate(climbEncoder.getAsDouble(), climbingTargetPosition);
+
+        if (climbEncoder.getAsDouble() > ClimbingSettings.maxEncoderPosition && theClimbingPower > 0) theClimbingPower = 0;
+        if (climbEncoder.getAsDouble() < ClimbingSettings.minEncoderPosition && theClimbingPower < 0) theClimbingPower = 0;
+        climbingMotor.set(-theClimbingPower);
     }
 
 
@@ -108,8 +111,11 @@ public class ClimbingSystem extends SubsystemBase {
         runTime.reset();
 
         SmartDashboard.putNumber("Climb Motor Current", climbingMotor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Climb Encoder Raw", climbingMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Climb Encoder Raw", climbEncoder.getAsDouble());
         SmartDashboard.putNumber("Climb Encoder", Math.toDegrees(climbEncoder.getAsDouble()));
+        SmartDashboard.putNumber("Climb Target Position", Math.toDegrees(climbingTargetPosition));
+
+        climbingSpeed = ClimbingSettings.climbingSpeed;
 
 
         ClimbingSettings.climbPID.setP(SmartDashboard.getNumber("Tune Climbing kP", ClimbingSettings.climbPID.getP()));

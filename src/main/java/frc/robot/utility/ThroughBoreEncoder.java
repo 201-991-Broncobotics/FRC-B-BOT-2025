@@ -59,6 +59,9 @@ public class ThroughBoreEncoder {
      */
     public double getAbsoluteAngleNorm() { return Functions.normalizeAngle(getAbsoluteRaw() * 2*Math.PI - absoluteEncoderZero); }
 
+
+    public double getAbsoluteAngleWithoutZero() { return Functions.normalizeAnglePositive(getAbsoluteRaw() * 2*Math.PI); }
+
     public void resetRelative() { relativeEncoder.reset(); }
     public void setRelativeZero(double relativeZero) { relativeEncoderZero = relativeZero; }
     public void setAbsoluteZero(double absoluteZero) { absoluteEncoderZero = absoluteZero; }

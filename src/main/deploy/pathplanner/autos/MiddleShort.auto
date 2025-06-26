@@ -5,46 +5,9 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "MiddleStart"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "raiseElevator"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "raiseClaw"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "outtakeClaw"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "stopRoller"
+            "pathName": "MiddleStart"
           }
         }
       ]

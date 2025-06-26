@@ -49,7 +49,7 @@ public class CoralElevatorSystem extends SubsystemBase {
 
     private boolean lastWasStagingUp = false;
 
-    private boolean enabled = true;
+    private boolean enabled = false;
 
 
     //temp
@@ -215,6 +215,11 @@ public class CoralElevatorSystem extends SubsystemBase {
 
         overrideManualControl = true;
         if (GoToPosition) lastManualControl = ManualControlAxis.getAsDouble();
+    }
+
+
+    public void goToCoralStationPreset() {
+        ElevatorStage = 2;
     }
 
     

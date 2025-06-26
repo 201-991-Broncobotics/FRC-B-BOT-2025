@@ -12,7 +12,7 @@ import frc.robot.utility.CoralSystemPreset;
  */
 public class Settings {
 
-    public static boolean useNormalControls = true; // false is for single player/Aidan controls
+    public static boolean useNormalControls = false; // false is for single player/Aidan controls
     public static boolean tuningTelemetryEnabled = true;
 
     public static class CoralSystemSettings {
@@ -71,20 +71,20 @@ public class Settings {
         public static double rollAngleExaggeration = 1.05; // slightly increases roll inputs so that they finish moving all the way
         public static int RollerCurrentLimit = 20;
 
-        public static int DiffyMotorCurrentLimit = 100;
+        public static int DiffyMotorCurrentLimit = 75;
     }
 
 
     public static class ClimbingSettings{
-        public static double climbingSpeed = Math.toRadians(10); // per second
+        public static double climbingSpeed = Math.toRadians(60); // per second
 
-        public static PIDController climbPID = new PIDController(0.0, 0, 0); 
+        public static PIDController climbPID = new PIDController(0.6, 0, 0); 
 
-        public static double maxEncoderPosition = Math.toRadians(110);
-        public static double minEncoderPosition = Math.toRadians(0);
+        public static double maxEncoderPosition = Math.toRadians(115); // 0 degrees is straight up
+        public static double minEncoderPosition = Math.toRadians(-18); // 90 degrees is directly inward
 
         public static boolean useCurrentLimit = true;
-        public static int currentLimit = 20;
+        public static int currentLimit = 75;
     }
 
     public static class AlgaeArmSettings {
