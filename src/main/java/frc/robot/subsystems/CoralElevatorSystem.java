@@ -35,13 +35,13 @@ public class CoralElevatorSystem extends SubsystemBase {
     private DoubleSupplier ManualControlAxis = () -> 0;
     private boolean GoToPosition = false; // whether or not the manual control controls the power up and down or sets the position
 
-    private int numberOfStages = 5;
+    private int numberOfStages = 3;
 
     private boolean overrideManualControl = false;
     private double lastManualControl = 0;
     private double overrideOverrideTolerance = 0.05; // units are joystick input
 
-    private DiffyCoralClaw coralClawReference;
+    //private DiffyCoralClaw coralClawReference;
 
     private ElapsedTime stageChangeButtonTimer;
 
@@ -49,15 +49,15 @@ public class CoralElevatorSystem extends SubsystemBase {
 
     private boolean lastWasStagingUp = false;
 
-    private boolean enabled = false;
+    private boolean enabled = true;
 
 
     //temp
     //private DoubleSupplier testEle;
 
 
-    public CoralElevatorSystem(DiffyCoralClaw coralClawReference) {
-        this.coralClawReference = coralClawReference;
+    public CoralElevatorSystem() {
+        //this.coralClawReference = coralClawReference;
         elevator = new TalonFX(MotorConstants.elevatorID);
         elevator.setNeutralMode(NeutralModeValue.Brake);
         TargetElevatorHeight = 0.0;
@@ -66,9 +66,9 @@ public class CoralElevatorSystem extends SubsystemBase {
         runTime = new ElapsedTime(Resolution.SECONDS);
 
         //put numbers so we can grab latter brr
-        SmartDashboard.putNumber("Ele kSE", CoralSystemSettings.kSA);
-        SmartDashboard.putNumber("Ele kGE", CoralSystemSettings.kGA);
-        SmartDashboard.putNumber("Ele kVE", CoralSystemSettings.kVA);
+        SmartDashboard.putNumber("Ele kSE", CoralSystemSettings.kSE);
+        SmartDashboard.putNumber("Ele kGE", CoralSystemSettings.kGE);
+        SmartDashboard.putNumber("Ele kVE", CoralSystemSettings.kVE);
         SmartDashboard.putNumber("TargetAngle", 0);
 
         stageChangeButtonTimer = new ElapsedTime(Resolution.MILLISECONDS);
@@ -87,13 +87,15 @@ public class CoralElevatorSystem extends SubsystemBase {
 
         if (!GoToPosition) {
 
-            if (coralClawReference.combinedElevatorCoralPitchControl(ManualControlAxis.getAsDouble(), 
+            /*if (coralClawReference.combinedElevatorCoralPitchControl(ManualControlAxis.getAsDouble(), 
                     (TargetElevatorHeight == CoralSystemSettings.minHeight) ? CoralSystemPresets.GroundIntake.clawPitch : Math.toRadians(20), // min angle is 0 unless elevator is at the bottom
                     (TargetElevatorHeight == CoralSystemSettings.maxHeight) ? CoralClawSettings.maxPitch : Math.toRadians(75) // max angle is 75 unless elevator is at the top
-            )) { // ^ this returns true if the diffy arm is already at its min or max angle and the elevator can move instead
-                if (Math.abs(ManualControlAxis.getAsDouble()) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
+            )) { */ // ^ this returns true if the diffy arm is already at its min or max angle and the elevator can move instead
+                
+            //}
+
+            if (Math.abs(ManualControlAxis.getAsDouble()) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
                 if (!overrideManualControl) TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;
-            }
 
             //if (Math.abs(ManualControlAxis.getAsDouble()) > overrideOverrideTolerance && overrideManualControl) overrideManualControl = false;
             //if (!overrideManualControl) TargetElevatorHeight += ManualControlAxis.getAsDouble() * CoralSystemSettings.manualControlSpeed * frameTime;
@@ -104,12 +106,10 @@ public class CoralElevatorSystem extends SubsystemBase {
 
         if (overrideManualControl) {
             switch (ElevatorStage) {
-                case 0: goToPreset(CoralSystemPresets.GroundIntake); break;
                 case 1: goToPreset(CoralSystemPresets.L1Reef); break;
                 case 2: goToPreset(CoralSystemPresets.CoralStationIntake); break;
                 case 3: goToPreset(CoralSystemPresets.L2Reef); break;
                 case 4: goToPreset(CoralSystemPresets.L3Reef); break;
-                case 5: goToPreset(CoralSystemPresets.L4Reef); break;
             }
         }
         
@@ -129,11 +129,15 @@ public class CoralElevatorSystem extends SubsystemBase {
         if (enabled) {
             if(Math.abs(ElevatorError)<CoralSystemSettings.elevatorTolerance) {
                 elevator.setVoltage(-elevatorFeedForward.calculate(0));
+                SmartDashboard.putNumber("Elevator direct power", -99);
             } else{
-                elevator.setVoltage(-elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl));
+                double elevatorPower = -elevatorFeedForward.calculate(ElevatorError/CoralSystemSettings.elevatorSpeedControl);
+                elevator.setVoltage(elevatorPower);
+                SmartDashboard.putNumber("Elevator direct power", elevatorPower);
             }
         } else {
             elevator.setVoltage(0);
+            SmartDashboard.putNumber("Elevator direct power", 0);
         }
         
         
@@ -152,18 +156,24 @@ public class CoralElevatorSystem extends SubsystemBase {
         SmartDashboard.putString( "actual values ele", ""+elevatorFeedForward.getKs()+" "+elevatorFeedForward.getKg()+" "+elevatorFeedForward.getKv());
        // SmartDashboard.putString("test", testString);//hahahaahahaha I AM DEFINITLY OKAY RIGHT NOW
         SmartDashboard.putNumber("Left ElevatorAct ", elevator.getPosition().getValueAsDouble());
+        if(enabled) {
+            SmartDashboard.putString("I gave elevator existence", "and ITS WORKING");
+        } else {
+            SmartDashboard.putString("I gave elevator existence", "and it chose to not exist");
+        }
+        
 
         //update ff
-        /*boolean check1 = elevatorFeedForward.getKs()!=SmartDashboard.getNumber("Ele kSE", CoralSystemSettings.kSE);
+        boolean check1 = elevatorFeedForward.getKs()!=SmartDashboard.getNumber("Ele kSE", CoralSystemSettings.kSE);
         boolean check2 = elevatorFeedForward.getKg()!=SmartDashboard.getNumber("Ele kGE", CoralSystemSettings.kGE);
         boolean check3 = elevatorFeedForward.getKv()!=SmartDashboard.getNumber("Ele kVE", CoralSystemSettings.kVE);
         if(check1 || check2 || check3){
-            SmartDashboard.putString( "stuff", "e");
+            //SmartDashboard.putString( "stuff", "e");
             elevatorFeedForward = new ElevatorFeedforward(
             SmartDashboard.getNumber("Ele kSE", CoralSystemSettings.kSE), 
             SmartDashboard.getNumber("Ele kGE", CoralSystemSettings.kGE), 
             SmartDashboard.getNumber("Ele kVE", CoralSystemSettings.kVE));
-        }*/
+        }
         
         
         
@@ -219,7 +229,7 @@ public class CoralElevatorSystem extends SubsystemBase {
 
 
     public void goToCoralStationPreset() {
-        ElevatorStage = 2;
+        ElevatorStage = 1;
     }
 
     
@@ -239,6 +249,10 @@ public class CoralElevatorSystem extends SubsystemBase {
     public void setManualControl(DoubleSupplier controlAxis) {
         setManualControl(controlAxis, false);
     }
+
+    public void Enable() { enabled = true; }
+    public void Disable() { enabled = false; }
+    public void toggleEnabled() { enabled = !enabled; }
 
 
 }

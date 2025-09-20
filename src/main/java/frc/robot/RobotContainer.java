@@ -42,7 +42,7 @@ import frc.robot.utility.LimelightHelpers;
 
 public class RobotContainer {
     public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    public static double MaxAngularRate = RotationsPerSecond.of(1.0).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -62,25 +62,25 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
     public final AlgaeArm algaeArm = new AlgaeArm();
-    public final DiffyCoralClaw coralClaw = new DiffyCoralClaw();
+    //public final DiffyCoralClaw coralClaw = new DiffyCoralClaw();
     public final ClimbingSystem climbingSystem = new ClimbingSystem();
 
 
-    public final CoralElevatorSystem coralElevatorSystem = new CoralElevatorSystem(coralClaw);
+    public final CoralElevatorSystem coralElevatorSystem = new CoralElevatorSystem();
 
-    private final CoralArmTeleOpCommand runElevatorUp = new CoralArmTeleOpCommand(coralElevatorSystem, 1);
-    private final CoralArmTeleOpCommand runElevatorDown = new CoralArmTeleOpCommand(coralElevatorSystem, -1);
+    //private final CoralArmTeleOpCommand runElevatorUp = new CoralArmTeleOpCommand(coralElevatorSystem, 1);
+    //private final CoralArmTeleOpCommand runElevatorDown = new CoralArmTeleOpCommand(coralElevatorSystem, -1);
 
     //pathplanner auto
     private final SendableChooser<Command> autoChooser; 
 
     public RobotContainer() {
          //Register Auto Commands
-        NamedCommands.registerCommand("raiseElevator",new InstantCommand(coralElevatorSystem::upOneStage));
-        NamedCommands.registerCommand("raiseClaw",new InstantCommand(coralClaw::goToElevatorPreset));
-        NamedCommands.registerCommand("outtakeClaw",new InstantCommand(coralClaw::outtakeRoller));
-        NamedCommands.registerCommand("outtakeClaw",new InstantCommand(coralClaw::outtakeRoller));
-        NamedCommands.registerCommand("stopClaw",new InstantCommand(coralClaw::stopRoller));
+        //NamedCommands.registerCommand("raiseElevator",new InstantCommand(coralElevatorSystem::upOneStage));
+        //NamedCommands.registerCommand("raiseClaw",new InstantCommand(coralClaw::goToElevatorPreset));
+        //NamedCommands.registerCommand("outtakeClaw",new InstantCommand(coralClaw::outtakeRoller));
+        //NamedCommands.registerCommand("outtakeClaw",new InstantCommand(coralClaw::outtakeRoller));
+        //NamedCommands.registerCommand("stopClaw",new InstantCommand(coralClaw::stopRoller));
         
         
         drivetrain.configureAutoBuilder();
@@ -168,7 +168,7 @@ public class RobotContainer {
 
             new JoystickButton(driverFlightHotasOne, 2).onTrue(new InstantCommand(climbingSystem::StartClimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
             new JoystickButton(driverFlightHotasOne, 13).onTrue(new InstantCommand(climbingSystem::StartClimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
-            new JoystickButton(driverFlightHotasOne, 14).onTrue(new InstantCommand(climbingSystem::StartUnclimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
+            // new JoystickButton(driverFlightHotasOne, 14).onTrue(new InstantCommand(climbingSystem::StartUnclimbing)).toggleOnFalse(new InstantCommand(climbingSystem::StopClimbing));
 
             // Climbing
 
@@ -192,15 +192,15 @@ public class RobotContainer {
             //operatorJoystick.leftBumper().onTrue(runElevatorUp);
             //operatorJoystick.leftTrigger().onTrue(runElevatorDown);
             coralElevatorSystem.setManualControl(() -> -Functions.deadbandValue(operatorJoystick.getLeftY(),  0.1));
-            operatorJoystick.leftBumper().onTrue(new InstantCommand(coralClaw::outtakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::stopRoller));
-            operatorJoystick.leftTrigger().onTrue(new InstantCommand(coralClaw::intakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::holdRoller));
+            //  operatorJoystick.leftBumper().onTrue(new InstantCommand(coralClaw::outtakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::stopRoller));
+            //  operatorJoystick.leftTrigger().onTrue(new InstantCommand(coralClaw::intakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::holdRoller));
             
-
-            operatorJoystick.povLeft().onTrue(new InstantCommand(() -> coralClaw.goToPreset(CoralSystemPresets.GroundIntake))).onTrue(new InstantCommand(() -> coralElevatorSystem.goToPreset(CoralSystemPresets.GroundIntake)));
-            operatorJoystick.povUp().toggleOnTrue(new InstantCommand(coralElevatorSystem::upOneStage)).toggleOnFalse(new InstantCommand(coralClaw::goToElevatorPreset)).toggleOnFalse(new InstantCommand(coralElevatorSystem::stopChangingStage));
-            operatorJoystick.povDown().toggleOnTrue(new InstantCommand(coralElevatorSystem::downOneStage)).toggleOnFalse(new InstantCommand(coralClaw::goToElevatorPreset)).toggleOnFalse(new InstantCommand(coralElevatorSystem::stopChangingStage));
-            operatorJoystick.povLeft().toggleOnTrue(new InstantCommand(coralClaw::switchRotation));
-            operatorJoystick.povRight().toggleOnTrue(new InstantCommand(coralElevatorSystem::goToCoralStationPreset)).toggleOnFalse(new InstantCommand(coralClaw::goToElevatorPreset));
+            
+            //operatorJoystick.povLeft().onTrue(new InstantCommand(() -> coralClaw.goToPreset(CoralSystemPresets.GroundIntake))).onTrue(new InstantCommand(() -> coralElevatorSystem.goToPreset(CoralSystemPresets.GroundIntake)));
+            operatorJoystick.povUp().toggleOnTrue(new InstantCommand(coralElevatorSystem::upOneStage)).toggleOnFalse(new InstantCommand(coralElevatorSystem::stopChangingStage));
+            operatorJoystick.povDown().toggleOnTrue(new InstantCommand(coralElevatorSystem::downOneStage)).toggleOnFalse(new InstantCommand(coralElevatorSystem::stopChangingStage));
+            //operatorJoystick.povLeft().toggleOnTrue(new InstantCommand(coralClaw::switchRotation));
+            operatorJoystick.povRight().toggleOnTrue(new InstantCommand(coralElevatorSystem::goToCoralStationPreset));
             
             // Algae
             algaeArm.setManualControl(() -> -Functions.deadbandValue(operatorJoystick.getRightY(),  0.1));
@@ -210,15 +210,16 @@ public class RobotContainer {
             operatorJoystick.x().onTrue(new InstantCommand(algaeArm::presetOuttakePosition));
             operatorJoystick.y().onTrue(new InstantCommand(algaeArm::presetStorePosition));
             operatorJoystick.b().onTrue(new InstantCommand(algaeArm::presetIntakePosition));
-            operatorJoystick.a().toggleOnTrue(new InstantCommand(coralClaw::toggleEnabled));
+            //  operatorJoystick.a().toggleOnTrue(new InstantCommand(coralClaw::toggleEnabled));
 
 
-            coralClaw.setDefaultCommand(new RunCommand(coralClaw::update, coralClaw));
+            //  coralClaw.setDefaultCommand(new RunCommand(coralClaw::update, coralClaw));
             coralElevatorSystem.setDefaultCommand(new RunCommand(coralElevatorSystem::update, coralElevatorSystem));
             algaeArm.setDefaultCommand(new RunCommand(algaeArm::update, algaeArm));
-            climbingSystem.setDefaultCommand(new RunCommand(climbingSystem::update, climbingSystem));
+            // climbingSystem.setDefaultCommand(new RunCommand(climbingSystem::update, climbingSystem));
 
             
+
 
         } else {
 
@@ -245,7 +246,7 @@ public class RobotContainer {
                 () -> driverFlightHotasOne.getY(), 
                 () -> -driverFlightHotasOne.getX(), 
                 () -> -driverFlightHotasOne.getRawAxis(5), 
-                () -> 0.4 + 0.6 * (driverFlightHotasOne.getRawButton(6) ? 1.0 : 0.0), 
+                () -> (0.4 + 0.2 * (driverFlightHotasOne.getRawButton(1) ? 1.0 : 0.0) + 0.4 * (driverFlightHotasOne.getRawButton(15) ? 1.0 : 0.0)) * (driverFlightHotasOne.getRawButton(6) ? 0.25 : 1.0), 
                 1, 2
             );  
 
@@ -273,8 +274,8 @@ public class RobotContainer {
             drivingProfile.setUpAutoThrottleControllerInput(() -> driverJoystick.getLeftTriggerAxis());
             drivingProfile.setUpAutoThrottleJoystickInput(() -> 0.4 + 0.6 * (driverFlightHotasOne.getRawButton(6) ? 1.0 : 0.0));
 
-            new JoystickButton(driverFlightHotasOne, 1).onTrue(new InstantCommand(drivingProfile::enableAutoAim)).onFalse(new InstantCommand(drivingProfile::disableAutoAim));
-            new JoystickButton(driverFlightHotasOne, 15).onTrue(new InstantCommand(drivingProfile::enableAutoDriving)).onFalse(new InstantCommand(drivingProfile::disableAutoDriving));
+            // new JoystickButton(driverFlightHotasOne, 1).onTrue(new InstantCommand(drivingProfile::enableAutoAim)).onFalse(new InstantCommand(drivingProfile::disableAutoAim));
+            // new JoystickButton(driverFlightHotasOne, 15).onTrue(new InstantCommand(drivingProfile::enableAutoDriving)).onFalse(new InstantCommand(drivingProfile::disableAutoDriving));
 
             new JoystickButton(driverFlightHotasOne, 4).whileTrue(drivetrain.applyRequest(() -> brake));
 
@@ -290,35 +291,41 @@ public class RobotContainer {
 
             // OPERATOR CONTROLS
 
+            
             // Throttle becomes elevator control
-            coralElevatorSystem.setManualControl(() -> Functions.deadbandValue(((-driverFlightHotasOne.getRawAxis(2)+1)/2),  0.05), true); // deadband creates a small zone that always goes to lowest position
+            coralElevatorSystem.setManualControl(() -> Functions.deadbandValue(((-driverFlightHotasOne.getRawAxis(2)+1)/2),  0.04), true); // deadband creates a small zone that always goes to lowest position
 
             // down, up on roller switch, cycles through elevator presets
             new JoystickButton(driverFlightHotasOne, 17).toggleOnTrue(new InstantCommand(coralElevatorSystem::downOneStage));
             new JoystickButton(driverFlightHotasOne, 18).toggleOnTrue(new InstantCommand(coralElevatorSystem::upOneStage));
 
-            new JoystickButton(driverFlightHotasOne, 7).toggleOnTrue(new InstantCommand(coralClaw::toggleEnabled));
+            //new JoystickButton(driverFlightHotasOne, 7).toggleOnTrue(new InstantCommand(coralClaw::toggleEnabled));
 
             // rollers
-            new JoystickButton(driverFlightHotasOne, 26).onTrue(new InstantCommand(coralClaw::intakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::holdRoller)); // push down
-            new JoystickButton(driverFlightHotasOne, 24).onTrue(new InstantCommand(coralClaw::outtakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::stopRoller)); // pull up
+            //new JoystickButton(driverFlightHotasOne, 26).onTrue(new InstantCommand(coralClaw::intakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::stopRoller)); // push down
+            //new JoystickButton(driverFlightHotasOne, 24).onTrue(new InstantCommand(coralClaw::outtakeRoller)).toggleOnFalse(new InstantCommand(coralClaw::stopRoller)); // pull up  */
             new JoystickButton(driverFlightHotasOne, 25).onTrue(new InstantCommand(algaeArm::intakeRoller)).toggleOnFalse(new InstantCommand(algaeArm::holdRoller)); // push right
             new JoystickButton(driverFlightHotasOne, 27).onTrue(new InstantCommand(algaeArm::outtakeRoller)).toggleOnFalse(new InstantCommand(algaeArm::stopRoller)); // push left
 
             // Tells Coral Claw to go to the preset position that the elevator is in
-            new JoystickButton(driverFlightHotasOne, 31).toggleOnTrue(new InstantCommand(coralClaw::goToElevatorPreset));
+            //new JoystickButton(driverFlightHotasOne, 31).toggleOnTrue(new InstantCommand(coralClaw::goToElevatorPreset));
             
             // Algae
             algaeArm.setManualControl(() -> ((-driverFlightHotasOne.getRawAxis(4)+1)/2), true);
-            coralClaw.setManualControl(() -> ((-driverFlightHotasOne.getRawAxis(3)+1)/2), () -> ((-driverFlightHotasOne.getRawAxis(6)+1)/2), true);
+            //coralClaw.setManualControl(() -> ((-driverFlightHotasOne.getRawAxis(3)+1)/2), () -> ((-driverFlightHotasOne.getRawAxis(6)+1)/2), true);
             new JoystickButton(driverFlightHotasOne, 8).onTrue(new InstantCommand(algaeArm::presetOuttakePosition));
+
+            new JoystickButton(driverFlightHotasOne, 9).toggleOnTrue(new InstantCommand(coralElevatorSystem::Enable));
+            new JoystickButton(driverFlightHotasOne, 10).toggleOnTrue(new InstantCommand(coralElevatorSystem::Disable));
+            //new JoystickButton(driverFlightHotasOne, 11).toggleOnTrue(new InstantCommand(coralClaw::Enable));
+            //new JoystickButton(driverFlightHotasOne, 12).toggleOnTrue(new InstantCommand(coralClaw::Disable));
 
             
 
-            coralClaw.setDefaultCommand(new RunCommand(coralClaw::update, coralClaw));
+            //coralClaw.setDefaultCommand(new RunCommand(coralClaw::update, coralClaw));
             coralElevatorSystem.setDefaultCommand(new RunCommand(coralElevatorSystem::update, coralElevatorSystem));
             algaeArm.setDefaultCommand(new RunCommand(algaeArm::update, algaeArm));
-            climbingSystem.setDefaultCommand(new RunCommand(climbingSystem::update, climbingSystem));
+            //climbingSystem.setDefaultCommand(new RunCommand(climbingSystem::update, climbingSystem));
 
         }
         

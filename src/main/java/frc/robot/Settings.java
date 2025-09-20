@@ -16,24 +16,24 @@ public class Settings {
     public static boolean tuningTelemetryEnabled = true;
 
     public static class CoralSystemSettings {
-        public static double kSE = 0.001;
-        public static double kGE = 0.300;
-        public static double kVE = 0.9;
+        public static double kSE = 0.05;
+        public static double kGE = 0.3;
+        public static double kVE = 0.5;
 
-        public static double kSA = 0.001;
-        public static double kGA = 0.05; 
-        public static double kVA = 0.05; 
+        //public static double kSA = 0.001;
+        //public static double kGA = 0.05; 
+        //public static double kVA = 0.05; 
 
         public static double elevatorTolerance =.8;
         public static double armTolerance =5;
-        public static double elevatorSpeedControl =1;
-        public static double elevatorRotationsToInches =(1.0/20.0)/*gear ratio*/ *(1.757*Math.PI/*circumference of the sprocket's pitch*/)*2;
+        public static double elevatorSpeedControl = 0.6;
+        public static double elevatorRotationsToInches =(1.0/9.0)/*gear ratio*/ *(1.757*Math.PI/*circumference of the sprocket's pitch*/)*2;
 
         public static double startingPosition = 0;
-        public static double maxHeight = 50;
+        public static double maxHeight = 47;
         public static double minHeight = 0;
 
-        public static double manualControlSpeed = 25; // max speed in inches per second 
+        public static double manualControlSpeed = 20; // max speed in inches per second 
 
 
         public static double delayBeforeStaging = 750; // milliseconds that after holding the change stage button, will cause it to skip to max/min stage
@@ -59,7 +59,7 @@ public class Settings {
         // Roller
         public static double intakePower = 0.7;
         public static double holdPower = 0.12; 
-        public static double outtakePower = -0.5;
+        public static double outtakePower = -0.25;
 
         // These are for manually telling the claw to go to a position for testing
         public static double testingPitch = 0;
@@ -138,10 +138,9 @@ public class Settings {
         public static CoralSystemPreset GroundIntake = new CoralSystemPreset(0, -27, 0);
         public static CoralSystemPreset CoralStationIntake = new CoralSystemPreset(11, 75, 0);
         public static CoralSystemPreset L4Reef = new CoralSystemPreset(50, 85, 90);
-        public static CoralSystemPreset L3Reef = new CoralSystemPreset(35, 55, 90);
-        public static CoralSystemPreset L2Reef = new CoralSystemPreset(25, 55, 90);
+        public static CoralSystemPreset L3Reef = new CoralSystemPreset(25, 55, 90);
+        public static CoralSystemPreset L2Reef = new CoralSystemPreset(15, 55, 90);
         public static CoralSystemPreset L1Reef = new CoralSystemPreset(0, 80, 90);
-        public static CoralSystemPreset Stowed = new CoralSystemPreset(0, 75, 0);
 
     }
 }
